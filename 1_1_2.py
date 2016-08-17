@@ -4,10 +4,8 @@ import re
 from bs4 import BeautifulSoup
 
 #url of the desired webpage
-page_url = "http://www.healthcaremagic.com/topics/disease-and-conditions"
 categories = []
-continue_extraction = True
-i = 0
+webpages = ["disease-and-conditions","drugs","treatments","procedures","lab-tests"]
 
 #this segment of code retrives the url of the next page
 def get_next_page(page_link):
@@ -47,11 +45,16 @@ def get_values(soup):
 		d = [title,url,number]
 		categories.append(d)
 
-#this loop extracts all the required information from all the pages
-while continue_extraction:
-	next_page = get_next_page(page_url)
-	if next_page == None:
-		continue_extraction = False
-	else:
-		pass
-	page_url = next_page
+#this loop extracts all the required information from all the pages of each category
+for webpage in webpages:
+	page_url = "http://www.healthcaremagic.com/topics/" + webpage
+	continue_extraction = True
+	
+	#this loop extracts all the required information from all the pages
+	while continue_extraction:
+		next_page = get_next_page(page_url)
+		if next_page == None:
+			continue_extraction = False
+		else:
+			pass
+		page_url = next_page
