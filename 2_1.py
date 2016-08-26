@@ -9,7 +9,10 @@ page_urls = []
 number_of_questions = []
 questions_per_page = 20
 url_regex = re.compile(ur'(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?\xab\xbb\u201c\u201d\u2018\u2019]))')
-questions = []
+
+#this code creates a file categories.csv and stores all the information retrived
+file = open('questions.csv','wb')
+write = csv.writer(file,delimiter=" ")
 
 #this piece of code opens the categories.csv file and retrives previously stored information
 file = open('categories.csv','rb')
@@ -46,14 +49,11 @@ def get_values(page_url):
 		url = url.lstrip()
 		url = url.rstrip()
 		d = [title,url]
-		questions.append(d)
+		write.writerow(d)
 
-#this function goes to all pages and calls get_values function to retrive the date
-def get_next_page():
-	for i in range(len(page_urls)):
-		pages = number_of_questions[i]/questions_per_page
-		for page in range(pages):
-			url = page_urls[i]+str(page)
-			get_values(url)
-
-get_next_page()
+#this code loops through all pages and calls the get_values function to retrive the data
+for i in range(len(page_urls)):
+	pages = number_of_questions[i]/questions_per_page
+	for page in range(pages):
+		url = page_urls[i]+str(page)
+		get_values(url)
