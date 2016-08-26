@@ -1,6 +1,7 @@
 #importing python modules and libraries
 import urllib2
 import re
+import csv
 from bs4 import BeautifulSoup
 
 #url of the desired webpage
@@ -15,7 +16,8 @@ def get_values(page_url):
 	page.close()
 	
 	#this segment of code retrives title, url and number of each category
-	categories_a = soup.find_all("a",class_="questionTitle")
+	div = soup.find("div",class_="linePadding7")
+	categories_a = div.find_all("a",class_="questionTitle")
 	for category_a in categories_a:
 		title = category_a.string
 		title = title.lstrip()
@@ -31,7 +33,7 @@ def get_values(page_url):
 
 	#this segment of code retrives the number of questions asked in the category
 	i = 0
-	categories_span = soup.find_all("span",style="display: block;font-size:10px; color:#999;")
+	categories_span = div.find_all("span",style="display: block;font-size:10px; color:#999;")
 	for category_span in categories_span:
 		questions = category_span.string
 		match = re.search(r'\d+',questions)
@@ -43,3 +45,9 @@ def get_values(page_url):
 
 #this runs the function
 get_values(page_url)
+
+#this code creates a file categories.csv and stores all the information retrived
+file = open('categories.csv','wb')
+write = csv.writer(file,delimiter=" ")
+for category in categories:
+	write.writerow(category)
