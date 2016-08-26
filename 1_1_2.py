@@ -4,8 +4,11 @@ import re
 from bs4 import BeautifulSoup
 
 #url of the desired webpage
-categories = []
 webpages = ["disease-and-conditions","drugs","treatments","procedures","lab-tests"]
+
+#this code creates a file categories.csv and stores all the information retrived
+file = open('topics.csv','wb')
+write = csv.writer(file,delimiter=" ")
 
 #this segment of code retrives the url of the next page
 def get_next_page(page_link):
@@ -14,6 +17,7 @@ def get_next_page(page_link):
 	get_values(soup)
 	page_li = soup.find_all("a",class_="box");
 	page.close()
+	
 	for li in page_li:
 		page_li_value = li.string
 		page_li_url = li.get('href')
@@ -43,7 +47,7 @@ def get_values(soup):
 		match = match.group()
 		number = match
 		d = [title,url,number]
-		categories.append(d)
+		write.writerow(d)
 
 #this loop extracts all the required information from all the pages of each category
 for webpage in webpages:
