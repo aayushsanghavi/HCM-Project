@@ -1,6 +1,7 @@
 #importing python modules and libraries
 import urllib2
 import re
+import csv
 from bs4 import BeautifulSoup
 
 #url of the desired webpage
@@ -17,7 +18,7 @@ def get_next_page(page_link):
 	get_values(soup)
 	page_li = soup.find_all("a",class_="box");
 	page.close()
-	
+
 	for li in page_li:
 		page_li_value = li.string
 		page_li_url = li.get('href')
