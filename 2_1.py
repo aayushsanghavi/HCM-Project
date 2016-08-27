@@ -53,7 +53,7 @@ def get_values(page_url):
 
 #this code loops through all pages and calls the get_values function to retrive the data
 for i in range(len(page_urls)):
-	pages = number_of_questions[i]/questions_per_page
+	pages = int(number_of_questions[i])/int(questions_per_page)
 	for page in range(pages):
 		url = page_urls[i]+str(page)
 		get_values(url)
