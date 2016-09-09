@@ -9,7 +9,7 @@ webpages = ["disease-and-conditions","drugs","treatments","procedures","lab-test
 
 #this code creates a file categories.csv and stores all the information retrived
 file = open('topics.csv','wb')
-write = csv.writer(file,delimiter=" ")
+write = csv.writer(file,delimiter=",")
 
 #this segment of code retrives the url of the next page
 def get_next_page(page_link):
@@ -39,6 +39,7 @@ def get_values(soup):
 	all_li = ul.find_all("li")
 	for li in all_li:
 		title = li.a.string
+		title = title.decode("utf-8", "ignore")
 		title = title.lstrip()
 		title = title.rstrip()
 		url = "http://www.healthcaremagic.com" + li.a.get('href')
@@ -47,6 +48,7 @@ def get_values(soup):
 		match = re.search(r'\d+',url)
 		match = match.group()
 		number = match
+		number = number.decode("utf-8", "ignore")
 		d = [title,url,number]
 		write.writerow(d)
 

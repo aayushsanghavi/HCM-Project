@@ -1,5 +1,5 @@
 #importing python modules and libraries
-import urllib2
+import urllib
 import re
 import csv
 from bs4 import BeautifulSoup
@@ -11,8 +11,8 @@ questions_per_page = 20
 url_regex = re.compile(ur'(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?\xab\xbb\u201c\u201d\u2018\u2019]))')
 
 #this code creates a file categories.csv and stores all the information retrived
-file = open('questions.csv','wb')
-write = csv.writer(file,delimiter=" ")
+file = open('test.csv','wb')
+write = csv.writer(file,delimiter=",")
 
 #this piece of code opens the categories.csv file and retrives previously stored information
 file = open('categories.csv','rb')
@@ -35,7 +35,7 @@ for row in read:
 
 #this function retrives the title and url of each question of each category
 def get_values(page_url):
-	page = urllib2.urlopen(page_url)
+	page = urllib.urlopen(page_url)
 	soup = BeautifulSoup(page,'lxml')
 	page.close()
 	
@@ -45,7 +45,7 @@ def get_values(page_url):
 		title = a.string
 		title = title.lstrip()
 		title = title.rstrip()
-		url = "http://www.healthcaremagic.com"+a.get('href')
+		url = "http://www.healthcaremagic.com" + a.get('href')
 		url = url.lstrip()
 		url = url.rstrip()
 		d = [title,url]

@@ -9,7 +9,7 @@ page_url = "http://www.healthcaremagic.com/doctors"
 
 #this code creates a file categories.csv and stores all the information retrived
 file = open('doctors.csv','wb')
-write = csv.writer(file,delimiter=" ")
+write = csv.writer(file,delimiter=",")
 
 #this function retrives the next page url and the data from that page
 def get_next_page(page_link):
@@ -71,6 +71,7 @@ def get_values(content):
 			reviews = review_div.text
 			reviews = reviews.lstrip()
 			reviews = reviews.rstrip()
+		reviews = int(reviews)
 
 		d = [title,specialisation,url,number,location,reviews]
 		write.writerow(d)

@@ -48,6 +48,6 @@ get_values(page_url)
 
 #this code creates a file categories.csv and stores all the information retrived
 file = open('categories.csv','wb')
-write = csv.writer(file,delimiter=" ")
+write = csv.writer(file,delimiter=",")
 for category in categories:
 	write.writerow(category)
