@@ -21,30 +21,37 @@ def get_values(page_url):
 	write.writerow("Question and answers")	
 	h1 = outer_div.find("h1",class_="OrangeH1")
 	title = h1.string
+	title = title.encode('ascii','ignore')
 	title = title.lstrip()
 	title = title.rstrip()
 	d['question_title'] = title
 
 	question_div = inner_div.find("div",class_="paragraph")
 	question = question_div.text
+	question = question.encode('ascii','ignore')
 	question = question.lstrip()
 	question = question.rstrip()
 	d['question_statement'] = question
 
 	spans = inner_div.find_all("span",class_="greyText")
 	date = spans[0].b.string
+	date = date.encode('ascii','ignore')
 	date = date.lstrip()
 	date = date.rstrip()
 	d['question_date'] date
 
 	answers = spans[2].string
+	answers = answers.encode('ascii','ignore')
 	answers = answers.lstrip()
 	answers = answers.rstrip()
+	answers = int(answers)
 	d['number_of_answers'] = answers
 
 	views = spans[4].string
+	views = views.encode('ascii','ignore')
 	views = views.lstrip()
 	views = views.rstrip()
+	views = int(views)
 	d['number_of_views'] = views
 
 	question_related_info = inner_div.find("div",class_="anchorBox")
@@ -53,6 +60,7 @@ def get_values(page_url):
 		for row in rows:
 			row_div = row.find("span",class_="leftMeta")
 			title = row_div.string
+			title = title.encode('ascii','ignore')
 			title = title.lstrip()
 			title = title.rstrip()
 
@@ -70,6 +78,7 @@ def get_values(page_url):
 		if doctor_info:
 			#doctor title
 			title = doctor_info.span.string
+			title = title.encode('ascii','ignore')		
 			title = title.lstrip()
 			title = title.rstrip()
 			d['doctor_title'] = title
@@ -77,6 +86,7 @@ def get_values(page_url):
 			#doctor name and url
 			span = doctor_info.find("span",class_="lightBlue")
 			name = span.a.string
+			name = name.encode('ascii','ignore')
 			name = name.lstrip()
 			name = name.rstrip()
 			d['doctor_name'] = name
@@ -89,6 +99,7 @@ def get_values(page_url):
 			match = re.search(r'\d+',url)
 			match = match.group()
 			number = match
+			number = int(number)
 			d['doctor_id'] = number
 			
 			#agreement
@@ -98,12 +109,14 @@ def get_values(page_url):
 				match = re.search(r'\d+',agree)
 				match = match.group()
 				number = match
+				number = int(number)				
 				d['doctors_agreeing'] = number
 
 		user_info = answers_div.find("span",class_="userResponse")
 		if user_info:
 			user_info = answers_div.find("span",class_="userResponse")
 			name = user_info.string
+			name = name.encode('ascii','ignore')
 			name = name.lstrip()
 			name = name.rstrip()
 			d['user_name'] = name
@@ -135,6 +148,7 @@ def get_values(page_url):
 			doctor_info = div.find("div",class_="doctorPhotoSmall")
 			title = doctor_info.get('title')
 			if title:
+				title = title.encode('ascii','ignore')				
 				title = title.lstrip()
 				title = title.rstrip()
 				r['doctor_title'] = title
@@ -147,11 +161,13 @@ def get_values(page_url):
 					if match:			
 						match = match.group()
 						number = match
+						number = int(number)
 						r['doctor_id'] = number
 
 			#question information
 			question_info = div.find("div",style="float:left; width: 88%; padding-left: 20px;")
 			question = question_info.a.string
+			question = question.encode('ascii','ignore')
 			question = question.lstrip()
 			question = question.rstrip()
 			r['related_question_statement'] = question
@@ -163,6 +179,7 @@ def get_values(page_url):
 			match = re.search(r'\d+',url)
 			match = match.group()
 			number = match
+			number = int(number)
 			r['related_question_id'] = number
 
 	#people also viewed information
@@ -171,6 +188,7 @@ def get_values(page_url):
 		all_li = people_viewed.find_all("li")
 		for li in all_li:
 			title = li.a.string
+			title = title.encode('ascii','ignore')
 			title = title.lstrip()
 			title = title.rstrip()
 			r['people_viewed_question'] = title
@@ -187,6 +205,7 @@ def get_values(page_url):
 			doctor_info = div.find("div",class_="doctorPhotoSmall")
 			title = doctor_info.get('title')
 			if title:
+				title = title.encode('ascii','ignore')
 				title = title.lstrip()
 				title = title.rstrip()
 				r['doctor_title'] = title
@@ -197,10 +216,12 @@ def get_values(page_url):
 				match = re.search(r'\d+',match)
 				match = match.group()
 				number = match
+				number = int(number)
 				r['doctor_id'] = number
 
 			question_info = div.find("div",style="float:left; width: 88%; padding-left: 20px;")
 			question = question_info.a.string
+			question = question.encode('ascii','ignore')
 			question = question.lstrip()
 			question = question.rstrip()
 			r['recent_question_statement'] = question
@@ -212,6 +233,7 @@ def get_values(page_url):
 			match = re.search(r'\d+',url)
 			match = match.group()
 			number = match
+			number = int(number)
 			r['recent_question_id'] = number
 
 	write.writerow(r)

@@ -45,6 +45,7 @@ def get_values(content):
 		review_div = div.find("div",style="font-size:11px;width:90%;")
 
 		title = inner_div.a.string
+		title = title.encode('ascii', 'ignore')
 		title = title.lstrip()
 		title = title.rstrip()
 		
@@ -55,9 +56,11 @@ def get_values(content):
 		match = re.search(r'\d+',url)
 		match = match.group()
 		number = match
+		number = int(number)
 		
 		specialisation = inner_div.span.string
-		specialisation = specialisation.lstrip(",  ")
+		specialisation = specialisation.encode('ascii', 'ignore')
+		specialisation = specialisation.lstrip(',')
 		specialisation = specialisation.rstrip()
 		
 		location = ""

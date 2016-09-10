@@ -43,14 +43,19 @@ def get_values(content):
 	for div in all_div:
 		inner_div = div.find("div",class_="smallChatIcon")
 		title = inner_div.a.string
+		title = title.encode('ascii','ignore')		
 		title = title.lstrip()
 		title = title.rstrip()
+
 		url = "http://www.healthcaremagic.com" + inner_div.a.get('href')
 		url = url.lstrip()
 		url = url.rstrip()
+		
 		match = re.search(r'\d+',url)
 		match = match.group()
 		number = match
+		number = int(number)
+
 		d = [title,url,number]
 		write.writerow(d)
 

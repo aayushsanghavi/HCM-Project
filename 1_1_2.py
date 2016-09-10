@@ -39,16 +39,19 @@ def get_values(soup):
 	all_li = ul.find_all("li")
 	for li in all_li:
 		title = li.a.string
-		title = title.decode("utf-8", "ignore")
+		title = title.encode('utf-8', 'ignore')
 		title = title.lstrip()
 		title = title.rstrip()
+
 		url = "http://www.healthcaremagic.com" + li.a.get('href')
 		url = url.lstrip()
 		url = url.rstrip()
+		
 		match = re.search(r'\d+',url)
 		match = match.group()
 		number = match
-		number = number.decode("utf-8", "ignore")
+		number = int(number)
+
 		d = [title,url,number]
 		write.writerow(d)
 

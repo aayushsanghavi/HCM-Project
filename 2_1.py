@@ -43,11 +43,14 @@ def get_values(page_url):
 	for div in all_div:
 		a = div.find("a",class_="questionTitle")
 		title = a.string
+		title = title.encode('ascii','ignore')
 		title = title.lstrip()
 		title = title.rstrip()
+
 		url = "http://www.healthcaremagic.com" + a.get('href')
 		url = url.lstrip()
 		url = url.rstrip()
+		
 		d = [title,url]
 		write.writerow(d)
 

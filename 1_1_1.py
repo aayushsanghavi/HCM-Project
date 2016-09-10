@@ -22,12 +22,16 @@ def get_values(page_url):
 		title = category_a.string
 		title = title.lstrip()
 		title = title.rstrip()
+		
 		url = "http://www.healthcaremagic.com"+category_a.get('href')
 		url = url.lstrip()
 		url = url.rstrip()
+		
 		match = re.search(r'\d+',url)
 		match = match.group()
 		number = match
+		number = int(number)
+
 		d = [title,url,number]
 		categories.append(d)
 
