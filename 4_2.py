@@ -4,7 +4,8 @@ import re
 import csv
 from bs4 import BeautifulSoup
 
-d = {}
+d = []
+r = {}
 
 def to_number(variable):
 	variable = variable.encode('ascii','ignore')
@@ -37,7 +38,7 @@ def get_values(page_url):
 	title = h1.span.string
 	title = to_string(title)
 	title = title.replace("  ","")
-	d['doctor_name'] = title
+	d.append(title)
 	
 	if div2:
 		div = div2.find("div",style="float: left; width: 54%;")
@@ -45,14 +46,18 @@ def get_values(page_url):
 			#doctor level
 			doctor_level = div.text
 			doctor_level = to_number(doctor_level)
-			d['doctor_level'] = doctor_level
+			d.append(doctor_level)
+		else:
+			d.append("nil")
 
 		div = div2.find("div",class_="userView")
 		if div:
 			#number of views
 			views = div.text
 			views = to_number(views)
-			d['number_of_views'] = views
+			d.append(views)
+		else:
+			d.append("nil")
 
 		span = div2.find("span",style="color: #777; float: left; font-size: 14px; margin-top: 1px;padding-left: 9px;")
 		if span:
@@ -60,7 +65,9 @@ def get_values(page_url):
 			span = span.find("span")
 			agree = span.string
 			agree = to_number(agree)
-			d['number_of_doctors_agreeing'] = agree
+			d.append(agree)
+		else:
+			d.append("nil")
 
 		span = div2.find("span",style="color: #777; float: left; font-size: 14px; margin-top: 1px;padding-left: 7px;")
 		if span:
@@ -68,7 +75,9 @@ def get_values(page_url):
 			span = span.find("span")
 			helpful = span.string
 			helpful = to_number(helpful)
-			d['number_of_helpful_answers'] = helpful
+			d.append(helpful)
+		else:
+			d.append("nil")
 
 		span = div2.find("span",style="color: #777; float: left; font-size: 14px; padding-left: 12px;")
 		if span:
@@ -76,17 +85,22 @@ def get_values(page_url):
 			spans = span.find_all("span",style="color: #2990b1;font-size: 18px;font-weight: bold;")
 			answered = spans[0].string
 			answered = to_number(answered)
-			d['number_of_questions_answered'] = answered
+			d.append(answered)
 			answered = spans[1].string
 			answered = to_number(answered)
-			d['number_of_premium_questions_answered'] = answered
+			d.append(answered)
+		else:
+			d.append("nil")
+			d.append("nil")
 
 		div = div2.find("div",class_="bubbleStatus")
 		if div:
 			#doctor status
 			status = div.text
 			status = to_string(status)
-			d['profile_status'] = status
+			d.append(status)
+		else:
+			d.append("nil")
 
 	if div3:
 		#contact details
@@ -97,7 +111,7 @@ def get_values(page_url):
 			for i in range(len(labels)):
 				labels[i] = labels[i].text
 				values[i] = values[i].text
-				d[labels[i]] = values[i]
+				r[labels[i]] = values[i]
 
 		inner_div = div3.find("div",class_="row",id="professionalDetailsDiv")
 		if inner_div:
@@ -108,7 +122,7 @@ def get_values(page_url):
 			for i in range(len(labels)):
 				labels[i] = labels[i].text
 				values[i] = values[i].text
-				d[labels[i]] = values[i]
+				r[labels[i]] = values[i]
 		
 			div = inner_div.find("div",id="officeDetailsDiv")
 			if div:
@@ -118,7 +132,7 @@ def get_values(page_url):
 				for i in range(len(labels)):
 					label[i] = label[i].to_string(label[i])
 					value[i] = value[i].to_string(value[i])
-					d[label[i]] = value[i]
+					r[label[i]] = value[i]
 			
 			div = inner_div.find("div",id="graduationDetailsDiv")
 			if div:
@@ -130,7 +144,7 @@ def get_values(page_url):
 					values[i] = values[i].text
 					labels[i] = to_string(labels[i])
 					values[i] = to_string(values[i])
-					d[labels[i]] = values[i]
+					r[labels[i]] = values[i]
 
 			div = inner_div.find("div",id="otherDetailsDiv")
 			if div:
@@ -142,74 +156,71 @@ def get_values(page_url):
 					values[i] = values[i].text
 					labels[i] = to_string(labels[i])
 					values[i] = to_string(values[i])
-					d[labels[i]] = values[i]
+					r[labels[i]] = values[i]
 
-	if div5:
-		n = 1
+		d.append(r)
+
+	if div5[0]:
 		#premium questions answered
 		inner_divs = div5[0].find_all("div",class_="smallPQIcon")
 		for inner_div in inner_divs:
 			title = inner_div.a.string
 			title = to_string(title)
-			d["premium_question_"+str(n)] = title
+			d.append(title)
 
 			url = "http://www.healthcaremagic.com" + inner_div.a.get('href')
 			url = url.lstrip()
 			url = url.rstrip()
-			d["premium_question_url_"+str(n)] = url
+			d.append(url)
 
 			match = re.search(r'\d+',url)
 			if match:
 				match = match.group()
 				number = match
 				number = to_number(number)
-				d["premium_question_id_"+str(n)] = number
-			n += 1
+				d.append(number)
 		
-		n = 1
+	if div5[1]:
 		#public questions answered
 		inner_divs = div5[1].find_all("div",class_="smallQIcon")
 		for inner_div in inner_divs:
 			title = inner_div.a.string
 			title = to_string(title)
-			d["public_question_"+str(n)] = title
+			d.append(title)
 
 			url = "http://www.healthcaremagic.com" + inner_div.a.get('href')
 			url = url.lstrip()
 			url = url.rstrip()
-			d["public_question_url_"+str(n)] = url
+			d.append(url)
 
 			match = re.search(r'\d+',url)
 			if match:
 				match = match.group()
 				number = match
 				number = to_number(number)
-				d["public_question_id_"+str(n)] = number
-			n += 1
+				d.append(number)
 
-		n = 1
 		#other related questions
 		inner_divs = div6.find_all("div",class_="FullDiv linePadding5 borderBottom")
 		for inner_div in inner_divs:
 			a = inner_div.find("a")
 			title = a.string
 			title = to_string(title)
-			d["related_answer"+str(n)] = title
+			d.append(title)
 
 			url = "http://www.healthcaremagic.com" + a.get('href')
 			url = url.lstrip()
 			url = url.rstrip()
-			d["related_answer_url_"+str(n)] = url
+			d.append(url)
 
 			match = re.search(r'\d+',url)
 			if match:
 				match = match.group()
 				number = match
 				number = to_number(number)
-				d["related_answer_id_"+str(n)] = number
-			n += 1
+				d.append(number)
 
-	write.writerows(d.items())
+	write.writerow(d)
 
 #this code creates a file doctorsInfo.csv and stores all the information retrived
 file = open('doctorsInfo.csv','wb')
@@ -220,4 +231,4 @@ file = open('doctors.csv','rb')
 read = csv.reader(file)
 for row in read:
 	get_values(row[2])
-	d.clear()
+	r.clear()
