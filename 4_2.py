@@ -19,7 +19,6 @@ def to_string(variable):
 	variable = variable.rstrip()
 	return variable
 
-#this function retrives the title, url and number of each category and number of questions asked
 def get_values(page_url):
 	page = urllib2.urlopen(page_url)
 	soup = BeautifulSoup(page,'lxml')
@@ -34,6 +33,7 @@ def get_values(page_url):
 	div6 = main_div.find("div",class_="FullDiv relatedFullTextList")
 
 	h1 = div1.find("h1",class_="OrangeH1")
+	#doctor name
 	title = h1.span.string
 	title = to_string(title)
 	title = title.replace("  ","")
@@ -42,18 +42,21 @@ def get_values(page_url):
 	if div2:
 		div = div2.find("div",style="float: left; width: 54%;")
 		if div:
+			#doctor level
 			doctor_level = div.text
 			doctor_level = to_number(doctor_level)
 			d['doctor_level'] = doctor_level
 
 		div = div2.find("div",class_="userView")
 		if div:
+			#number of views
 			views = div.text
 			views = to_number(views)
 			d['number_of_views'] = views
 
 		span = div2.find("span",style="color: #777; float: left; font-size: 14px; margin-top: 1px;padding-left: 9px;")
 		if span:
+			#number of people who agree
 			span = span.find("span")
 			agree = span.string
 			agree = to_number(agree)
@@ -61,6 +64,7 @@ def get_values(page_url):
 
 		span = div2.find("span",style="color: #777; float: left; font-size: 14px; margin-top: 1px;padding-left: 7px;")
 		if span:
+			#number of answers found helpful
 			span = span.find("span")
 			helpful = span.string
 			helpful = to_number(helpful)
@@ -68,6 +72,7 @@ def get_values(page_url):
 
 		span = div2.find("span",style="color: #777; float: left; font-size: 14px; padding-left: 12px;")
 		if span:
+			#number of public and premium questions answered
 			spans = span.find_all("span",style="color: #2990b1;font-size: 18px;font-weight: bold;")
 			answered = spans[0].string
 			answered = to_number(answered)
@@ -78,11 +83,13 @@ def get_values(page_url):
 
 		div = div2.find("div",class_="bubbleStatus")
 		if div:
+			#doctor status
 			status = div.text
 			status = to_string(status)
 			d['profile_status'] = status
 
 	if div3:
+		#contact details
 		div = div3.find("div",class_="row",id="contactDetailsDiv")
 		if div:
 			labels = div.find_all("div",class_="label")
@@ -94,6 +101,7 @@ def get_values(page_url):
 
 		inner_div = div3.find("div",class_="row",id="professionalDetailsDiv")
 		if inner_div:
+			#professional details
 			div = inner_div.find("div",class_="row")
 			labels = div.find_all("div",class_="label")
 			values = div.find_all("div",class_="value")
@@ -104,6 +112,7 @@ def get_values(page_url):
 		
 			div = inner_div.find("div",id="officeDetailsDiv")
 			if div:
+				#office details
 				labels = div.find_all("div",class_="label").text
 				values = div.find_all("div",class_="label").text
 				for i in range(len(labels)):
@@ -113,6 +122,7 @@ def get_values(page_url):
 			
 			div = inner_div.find("div",id="graduationDetailsDiv")
 			if div:
+				#graduation details
 				labels = div.find_all("div",class_="label")
 				values = div.find_all("div",class_="value")
 				for i in range(len(labels)):
@@ -124,6 +134,7 @@ def get_values(page_url):
 
 			div = inner_div.find("div",id="otherDetailsDiv")
 			if div:
+				#other details
 				labels = div.find_all("div",class_="label")
 				values = div.find_all("div",class_="value")
 				for i in range(len(labels)):
@@ -135,6 +146,7 @@ def get_values(page_url):
 
 	if div5:
 		n = 1
+		#premium questions answered
 		inner_divs = div5[0].find_all("div",class_="smallPQIcon")
 		for inner_div in inner_divs:
 			title = inner_div.a.string
@@ -155,6 +167,7 @@ def get_values(page_url):
 			n += 1
 		
 		n = 1
+		#public questions answered
 		inner_divs = div5[1].find_all("div",class_="smallQIcon")
 		for inner_div in inner_divs:
 			title = inner_div.a.string
@@ -175,6 +188,7 @@ def get_values(page_url):
 			n += 1
 
 		n = 1
+		#other related questions
 		inner_divs = div6.find_all("div",class_="FullDiv linePadding5 borderBottom")
 		for inner_div in inner_divs:
 			a = inner_div.find("a")
@@ -197,11 +211,11 @@ def get_values(page_url):
 
 	write.writerows(d.items())
 
-#this code creates a file categories.csv and stores all the information retrived
+#this code creates a file doctorsInfo.csv and stores all the information retrived
 file = open('doctorsInfo.csv','wb')
 write = csv.writer(file,delimiter=",")
 
-#this piece of code opens the categories.csv file and retrives previously stored information
+#this code opens the doctors.csv file and retrives previously stored information
 file = open('doctors.csv','rb')
 read = csv.reader(file)
 for row in read:

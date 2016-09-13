@@ -47,7 +47,7 @@ def get_values(page_url):
 		categories[i].append(questions)
 		i += 1
 
-#this runs the function
+#this runs the get function
 get_values(page_url)
 
 #this code creates a file categories.csv and stores all the information retrived

@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 #url of the desired webpage
 page_url = "http://www.healthcaremagic.com/doctorchatlogs"
 
-#this code creates a file categories.csv and stores all the information retrived
+#this code creates a file doctorChatLogs.csv and stores all the information retrived
 file = open('doctorchatLogs.csv','wb')
 write = csv.writer(file,delimiter=",")
 
@@ -37,7 +37,7 @@ def get_next_page(page_link):
 			next_page_url = None
 	return next_page_url
 		
-#this function retrives the title, url and number of each category for the specific url
+#this function retrives the title, url and number of each chat log
 def get_values(content):
 	all_div = content.find_all("div",class_="queriesBox")
 	for div in all_div:

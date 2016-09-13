@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 #url of the desired webpage
 page_url = "http://www.healthcaremagic.com/doctors"
 
-#this code creates a file categories.csv and stores all the information retrived
+#this code creates a file doctors.csv and stores all the information retrived
 file = open('doctors.csv','wb')
 write = csv.writer(file,delimiter=",")
 

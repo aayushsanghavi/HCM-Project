@@ -7,7 +7,19 @@ from bs4 import BeautifulSoup
 d = {}
 r = {}
 
-#this function retrives the title, url and number of each category and number of questions asked
+def to_number(variable):
+	variable = variable.encode('ascii','ignore')
+	variable = variable.lstrip()
+	variable = variable.rstrip()
+	variable = int(variable)
+	return variable
+
+def to_string(variable):
+	variable = variable.encode('ascii','ignore')
+	variable = variable.lstrip()
+	variable = variable.rstrip()
+	return variable
+
 def get_values(page_url):
 	page = urllib2.urlopen(page_url)
 	soup = BeautifulSoup(page,'lxml')
@@ -19,50 +31,42 @@ def get_values(page_url):
 	inner_div = div.find("div",class_="postQuestion")	
 	
 	write.writerow("Question and answers")	
+	#question title
 	h1 = outer_div.find("h1",class_="OrangeH1")
 	title = h1.string
-	title = title.encode('ascii','ignore')
-	title = title.lstrip()
-	title = title.rstrip()
+	title = to_string(title)
 	d['question_title'] = title
 
+	#question statement
 	question_div = inner_div.find("div",class_="paragraph")
 	question = question_div.text
-	question = question.encode('ascii','ignore')
-	question = question.lstrip()
-	question = question.rstrip()
+	question = to_string(question)
 	d['question_statement'] = question
 
+	#question asked on
 	spans = inner_div.find_all("span",class_="greyText")
 	date = spans[0].b.string
-	date = date.encode('ascii','ignore')
-	date = date.lstrip()
-	date = date.rstrip()
+	date = to_string(date)
 	d['question_date'] date
 
+	#number of answers
 	answers = spans[2].string
-	answers = answers.encode('ascii','ignore')
-	answers = answers.lstrip()
-	answers = answers.rstrip()
-	answers = int(answers)
+	answers = to_number(answers)
 	d['number_of_answers'] = answers
 
+	#number of views
 	views = spans[4].string
-	views = views.encode('ascii','ignore')
-	views = views.lstrip()
-	views = views.rstrip()
-	views = int(views)
+	views = to_number(views)
 	d['number_of_views'] = views
 
+	#some question tags
 	question_related_info = inner_div.find("div",class_="anchorBox")
 	if question_related_info:
 		rows = question_related_info.find_all("div",class_="row")
 		for row in rows:
 			row_div = row.find("span",class_="leftMeta")
 			title = row_div.string
-			title = title.encode('ascii','ignore')
-			title = title.lstrip()
-			title = title.rstrip()
+			title = to_string(title)
 
 			content = ''
 			div = row.find("div",class_="right")
@@ -78,17 +82,13 @@ def get_values(page_url):
 		if doctor_info:
 			#doctor title
 			title = doctor_info.span.string
-			title = title.encode('ascii','ignore')		
-			title = title.lstrip()
-			title = title.rstrip()
+			title = to_string(title)
 			d['doctor_title'] = title
 			
 			#doctor name and url
 			span = doctor_info.find("span",class_="lightBlue")
 			name = span.a.string
-			name = name.encode('ascii','ignore')
-			name = name.lstrip()
-			name = name.rstrip()
+			name = to_string(name)
 			d['doctor_name'] = name
 
 			url = "http://www.healthcaremagic.com"
@@ -99,41 +99,38 @@ def get_values(page_url):
 			match = re.search(r'\d+',url)
 			match = match.group()
 			number = match
-			number = int(number)
+			number = to_number(number)
 			d['doctor_id'] = number
 			
-			#agreement
+			#doctors who agree with the answer
 			p = answers_div.find("p",style="color:#19730e;padding-top:2px;")
 			if p:
 				agree = p.string
 				match = re.search(r'\d+',agree)
 				match = match.group()
 				number = match
-				number = int(number)				
+				number = to_number(number)
 				d['doctors_agreeing'] = number
 
 		user_info = answers_div.find("span",class_="userResponse")
 		if user_info:
+			#user name
 			user_info = answers_div.find("span",class_="userResponse")
 			name = user_info.string
-			name = name.encode('ascii','ignore')
-			name = name.lstrip()
-			name = name.rstrip()
+			name = to_string(name)
 			d['user_name'] = name
 		
 		#doctor/user answer
 		answer = answers_div.find("div",class_="paragraph")
 		doctorResponse = answer.text
-		doctorResponse = doctorResponse.lstrip()
-		doctorResponse = doctorResponse.rstrip()	
+		doctorResponse = to_string(doctorResponse)
 		d['answer_text'] = doctorResponse
 
 		#answer date
 		date_div = answers_div.find("div",class_="postedText")
 		date = date_div.text
 		date = date.replace("Answered:","")
-		date = date.lstrip()
-		date = date.rstrip()
+		date = to_string(date)
 		d['answer_date'] = date
 
 	write.writerow(d)
@@ -148,9 +145,7 @@ def get_values(page_url):
 			doctor_info = div.find("div",class_="doctorPhotoSmall")
 			title = doctor_info.get('title')
 			if title:
-				title = title.encode('ascii','ignore')				
-				title = title.lstrip()
-				title = title.rstrip()
+				title = to_string(title)
 				r['doctor_title'] = title
 				url = doctor_info.get('style')
 
@@ -161,25 +156,25 @@ def get_values(page_url):
 					if match:			
 						match = match.group()
 						number = match
-						number = int(number)
+						number = to_number(number)
 						r['doctor_id'] = number
 
-			#question information
+			#related question information
 			question_info = div.find("div",style="float:left; width: 88%; padding-left: 20px;")
 			question = question_info.a.string
-			question = question.encode('ascii','ignore')
-			question = question.lstrip()
-			question = question.rstrip()
+			question = to_string(question)
 			r['related_question_statement'] = question
 
+			#related question url
 			url = "http://www.healthcaremagic.com"
 			url += question_info.a.get('href')
 			r['related_question_url'] = url
 			
+			#related question id
 			match = re.search(r'\d+',url)
 			match = match.group()
 			number = match
-			number = int(number)
+			number = to_number(number)
 			r['related_question_id'] = number
 
 	#people also viewed information
@@ -187,12 +182,13 @@ def get_values(page_url):
 	if people_viewed:
 		all_li = people_viewed.find_all("li")
 		for li in all_li:
+
+			#viewed question
 			title = li.a.string
-			title = title.encode('ascii','ignore')
-			title = title.lstrip()
-			title = title.rstrip()
+			title = to_string(title)
 			r['people_viewed_question'] = title
 			
+			#url
 			url = "http://www.healthcaremagic.com"			
 			url += li.a.get('href')
 			r['people_viewed_url'] = url
@@ -205,44 +201,49 @@ def get_values(page_url):
 			doctor_info = div.find("div",class_="doctorPhotoSmall")
 			title = doctor_info.get('title')
 			if title:
-				title = title.encode('ascii','ignore')
-				title = title.lstrip()
-				title = title.rstrip()
+				
+				#doctor who answered
+				title = to_string(title)
 				r['doctor_title'] = title
 				
+				#doctor url
 				url = doctor_info.get('style')
+
+				#doctor id
 				match = re.search(r'/icon/\d+',url)
 				match = match.group()			
 				match = re.search(r'\d+',match)
 				match = match.group()
 				number = match
-				number = int(number)
+				number = to_number(number)
 				r['doctor_id'] = number
 
 			question_info = div.find("div",style="float:left; width: 88%; padding-left: 20px;")
+
+			#recent question statement
 			question = question_info.a.string
-			question = question.encode('ascii','ignore')
-			question = question.lstrip()
-			question = question.rstrip()
+			question = to_string(question)
 			r['recent_question_statement'] = question
 			
+			#recent question url
 			url = "http://www.healthcaremagic.com"		
 			url += question_info.a.get('href')
 			r['recent_question_url'] = url
 			
+			#question id
 			match = re.search(r'\d+',url)
 			match = match.group()
 			number = match
-			number = int(number)
+			number = to_number(number)
 			r['recent_question_id'] = number
 
 	write.writerow(r)
 
-#this code creates a file categories.csv and stores all the information retrived
+#this code creates a file answers.csv and stores all the information retrived
 file = open('answers.csv','wb')
 write = csv.writer(file,delimiter=",")
 
-#this piece of code opens the categories.csv file and retrives previously stored information
+#this piece of code opens the questions.csv file and retrives previously stored information
 file = open('questions.csv','rb')
 read = csv.reader(file)
 for row in read:
