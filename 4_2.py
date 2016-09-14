@@ -111,6 +111,8 @@ def get_values(page_url):
 			for i in range(len(labels)):
 				labels[i] = labels[i].text
 				values[i] = values[i].text
+				labels[i] = to_string(labels[i])
+				values[i] = to_string(values[i])
 				r[labels[i]] = values[i]
 
 		inner_div = div3.find("div",class_="row",id="professionalDetailsDiv")
@@ -122,6 +124,8 @@ def get_values(page_url):
 			for i in range(len(labels)):
 				labels[i] = labels[i].text
 				values[i] = values[i].text
+				labels[i] = to_string(labels[i])
+				values[i] = to_string(values[i])
 				r[labels[i]] = values[i]
 		
 			div = inner_div.find("div",id="officeDetailsDiv")
@@ -130,9 +134,11 @@ def get_values(page_url):
 				labels = div.find_all("div",class_="label").text
 				values = div.find_all("div",class_="label").text
 				for i in range(len(labels)):
-					label[i] = label[i].to_string(label[i])
-					value[i] = value[i].to_string(value[i])
-					r[label[i]] = value[i]
+					labels[i] = labels[i].text
+					values[i] = values[i].text
+					labels[i] = to_string(labels[i])
+					values[i] = to_string(values[i])
+					r[labels[i]] = values[i]
 			
 			div = inner_div.find("div",id="graduationDetailsDiv")
 			if div:
@@ -160,66 +166,68 @@ def get_values(page_url):
 
 		d.append(r)
 
-	if div5[0]:
-		#premium questions answered
-		inner_divs = div5[0].find_all("div",class_="smallPQIcon")
-		for inner_div in inner_divs:
-			title = inner_div.a.string
-			title = to_string(title)
-			d.append(title)
+	if div5:
+		if len(div5)>=1:
+			#premium questions answered
+			inner_divs = div5[0].find_all("div",class_="smallPQIcon")
+			for inner_div in inner_divs:
+				title = inner_div.a.string
+				title = to_string(title)
+				d.append(title)
 
-			url = "http://www.healthcaremagic.com" + inner_div.a.get('href')
-			url = url.lstrip()
-			url = url.rstrip()
-			d.append(url)
+				url = "http://www.healthcaremagic.com" + inner_div.a.get('href')
+				url = url.lstrip()
+				url = url.rstrip()
+				d.append(url)
 
-			match = re.search(r'\d+',url)
-			if match:
-				match = match.group()
-				number = match
-				number = to_number(number)
-				d.append(number)
+				match = re.search(r'\d+',url)
+				if match:
+					match = match.group()
+					number = match
+					number = to_number(number)
+					d.append(number)
 		
-	if div5[1]:
-		#public questions answered
-		inner_divs = div5[1].find_all("div",class_="smallQIcon")
-		for inner_div in inner_divs:
-			title = inner_div.a.string
-			title = to_string(title)
-			d.append(title)
+		if len(div5)==2:
+			#public questions answered
+			inner_divs = div5[1].find_all("div",class_="smallQIcon")
+			for inner_div in inner_divs:
+				title = inner_div.a.string
+				title = to_string(title)
+				d.append(title)
 
-			url = "http://www.healthcaremagic.com" + inner_div.a.get('href')
-			url = url.lstrip()
-			url = url.rstrip()
-			d.append(url)
+				url = "http://www.healthcaremagic.com" + inner_div.a.get('href')
+				url = url.lstrip()
+				url = url.rstrip()
+				d.append(url)
 
-			match = re.search(r'\d+',url)
-			if match:
-				match = match.group()
-				number = match
-				number = to_number(number)
-				d.append(number)
+				match = re.search(r'\d+',url)
+				if match:
+					match = match.group()
+					number = match
+					number = to_number(number)
+					d.append(number)
 
-		#other related questions
-		inner_divs = div6.find_all("div",class_="FullDiv linePadding5 borderBottom")
-		for inner_div in inner_divs:
-			a = inner_div.find("a")
-			title = a.string
-			title = to_string(title)
-			d.append(title)
-
-			url = "http://www.healthcaremagic.com" + a.get('href')
-			url = url.lstrip()
-			url = url.rstrip()
-			d.append(url)
-
-			match = re.search(r'\d+',url)
-			if match:
-				match = match.group()
-				number = match
-				number = to_number(number)
-				d.append(number)
-
+	#other related questions
+	inner_divs = div6.find_all("div",class_="FullDiv linePadding5 borderBottom")
+	for inner_div in inner_divs:
+		a = inner_div.find("a")
+		title = a.string
+		title = to_string(title)
+		d.append(title)
+		
+		url = "http://www.healthcaremagic.com" + a.get('href')
+		url = url.lstrip()
+		url = url.rstrip()
+		d.append(url)
+		
+		match = re.search(r'/\d+',url)
+		if match:
+			match = match.group()
+			number = match
+			number = number.replace("/","")
+			number = to_number(number)
+			d.append(number)
+	
 	write.writerow(d)
 	del d
 
