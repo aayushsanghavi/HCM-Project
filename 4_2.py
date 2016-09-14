@@ -207,26 +207,27 @@ def get_values(page_url):
 					number = to_number(number)
 					d.append(number)
 
-	#other related questions
-	inner_divs = div6.find_all("div",class_="FullDiv linePadding5 borderBottom")
-	for inner_div in inner_divs:
-		a = inner_div.find("a")
-		title = a.string
-		title = to_string(title)
-		d.append(title)
-		
-		url = "http://www.healthcaremagic.com" + a.get('href')
-		url = url.lstrip()
-		url = url.rstrip()
-		d.append(url)
-		
-		match = re.search(r'/\d+',url)
-		if match:
-			match = match.group()
-			number = match
-			number = number.replace("/","")
-			number = to_number(number)
-			d.append(number)
+	if div6:
+		#other related questions
+		inner_divs = div6.find_all("div",class_="FullDiv linePadding5 borderBottom")
+		for inner_div in inner_divs:
+			a = inner_div.find("a")
+			title = a.string
+			title = to_string(title)
+			d.append(title)
+			
+			url = "http://www.healthcaremagic.com" + a.get('href')
+			url = url.lstrip()
+			url = url.rstrip()
+			d.append(url)
+			
+			match = re.search(r'/\d+',url)
+			if match:
+				match = match.group()
+				number = match
+				number = number.replace("/","")
+				number = to_number(number)
+				d.append(number)
 	
 	write.writerow(d)
 	del d
