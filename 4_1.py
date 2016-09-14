@@ -3,6 +3,7 @@ import urllib2
 import re
 import csv
 from bs4 import BeautifulSoup
+import httplib
 
 #url of the desired webpage
 page_url = "http://www.healthcaremagic.com/doctors"
@@ -46,6 +47,7 @@ def get_values(content):
 
 		title = inner_div.a.string
 		title = title.encode('ascii', 'ignore')
+		title = title.replace("  ","")
 		title = title.lstrip()
 		title = title.rstrip()
 		
@@ -78,6 +80,16 @@ def get_values(content):
 
 		d = [title,specialisation,url,number,location,reviews]
 		write.writerow(d)
+
+def patch_http_response_read(func):
+    def inner(*args):
+        try:
+            return func(*args)
+        except httplib.IncompleteRead, e:
+            return e.partial
+
+    return inner
+httplib.HTTPResponse.read = patch_http_response_read(httplib.HTTPResponse.read)
 
 #this loop extracts all the required information from all the pages
 continue_extraction = True
