@@ -4,7 +4,6 @@ import re
 import csv
 from bs4 import BeautifulSoup
 
-d = []
 r = {}
 
 def to_number(variable):
@@ -25,6 +24,7 @@ def get_values(page_url):
 	soup = BeautifulSoup(page,'lxml')
 	page.close()
 	
+	d = []
 	main_div = soup.find("div",class_="DocBox")	
 	div1 = main_div.find("div",style="width:100%;float:left;margin:0px;")
 	div2 = main_div.find("div",class_="FullDiv")
@@ -221,6 +221,7 @@ def get_values(page_url):
 				d.append(number)
 
 	write.writerow(d)
+	del d
 
 #this code creates a file doctorsInfo.csv and stores all the information retrived
 file = open('doctorsInfo.csv','wb')

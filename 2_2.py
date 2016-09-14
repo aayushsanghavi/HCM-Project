@@ -4,7 +4,6 @@ import re
 import csv
 from bs4 import BeautifulSoup
 
-d = {}
 r = {}
 
 def to_number(variable):
@@ -21,6 +20,7 @@ def to_string(variable):
 	return variable
 
 def get_values(page_url):
+	d = []
 	page = urllib2.urlopen(page_url)
 	soup = BeautifulSoup(page,'lxml')
 	page.close()
@@ -30,34 +30,33 @@ def get_values(page_url):
 	div = outer_div.find("div",class_="questionDivWrapper")
 	inner_div = div.find("div",class_="postQuestion")	
 	
-	write.writerow("Question and answers")	
 	#question title
 	h1 = outer_div.find("h1",class_="OrangeH1")
 	title = h1.string
 	title = to_string(title)
-	d['question_title'] = title
+	d.append(title)
 
 	#question statement
 	question_div = inner_div.find("div",class_="paragraph")
 	question = question_div.text
 	question = to_string(question)
-	d['question_statement'] = question
+	d.append(question)
 
 	#question asked on
 	spans = inner_div.find_all("span",class_="greyText")
 	date = spans[0].b.string
 	date = to_string(date)
-	d['question_date'] date
+	d.append(date)
 
 	#number of answers
 	answers = spans[2].string
 	answers = to_number(answers)
-	d['number_of_answers'] = answers
+	d.append(answers)
 
 	#number of views
 	views = spans[4].string
 	views = to_number(views)
-	d['number_of_views'] = views
+	d.append(views)
 
 	#some question tags
 	question_related_info = inner_div.find("div",class_="anchorBox")
@@ -74,8 +73,11 @@ def get_values(page_url):
 			for a in all_a:
 				content += a.string + ", "
 			content = content.rstrip(", ")
-			d[title] = content
+			r[title] = content
 	
+		d.append(r)
+		r.clear()
+
 	answers_divs = main_div.find_all("div",class_="answerWrapper")
 	for answers_div in answers_divs:
 		doctor_info = answers_div.find("div",class_="doctorResponse")
@@ -83,24 +85,24 @@ def get_values(page_url):
 			#doctor title
 			title = doctor_info.span.string
 			title = to_string(title)
-			d['doctor_title'] = title
+			d.append(title)
 			
 			#doctor name and url
 			span = doctor_info.find("span",class_="lightBlue")
 			name = span.a.string
 			name = to_string(name)
-			d['doctor_name'] = name
+			d.append(name)
 
 			url = "http://www.healthcaremagic.com"
 			url += span.a.get('href')
-			d['doctor_url'] = url
+			d.append(url)
 			
 			#doctor id
 			match = re.search(r'\d+',url)
 			match = match.group()
 			number = match
 			number = to_number(number)
-			d['doctor_id'] = number
+			d.append(number)
 			
 			#doctors who agree with the answer
 			p = answers_div.find("p",style="color:#19730e;padding-top:2px;")
@@ -110,7 +112,7 @@ def get_values(page_url):
 				match = match.group()
 				number = match
 				number = to_number(number)
-				d['doctors_agreeing'] = number
+				d.append(number)
 
 		user_info = answers_div.find("span",class_="userResponse")
 		if user_info:
@@ -118,23 +120,20 @@ def get_values(page_url):
 			user_info = answers_div.find("span",class_="userResponse")
 			name = user_info.string
 			name = to_string(name)
-			d['user_name'] = name
+			d.append(name)
 		
 		#doctor/user answer
 		answer = answers_div.find("div",class_="paragraph")
 		doctorResponse = answer.text
 		doctorResponse = to_string(doctorResponse)
-		d['answer_text'] = doctorResponse
+		d.append(doctorResponse)
 
 		#answer date
 		date_div = answers_div.find("div",class_="postedText")
 		date = date_div.text
 		date = date.replace("Answered:","")
 		date = to_string(date)
-		d['answer_date'] = date
-
-	write.writerow(d)
-	write.writerow("Related and recent questions")
+		d.append(date)
 	
 	#related questions
 	related_questions_div = main_div.find("div",class_="FullDiv relatedFullTextList")
@@ -146,7 +145,7 @@ def get_values(page_url):
 			title = doctor_info.get('title')
 			if title:
 				title = to_string(title)
-				r['doctor_title'] = title
+				d.append(title)
 				url = doctor_info.get('style')
 
 				match = re.search(r'/icon/\d+',url)
@@ -157,25 +156,25 @@ def get_values(page_url):
 						match = match.group()
 						number = match
 						number = to_number(number)
-						r['doctor_id'] = number
+						d.append(number)
 
 			#related question information
 			question_info = div.find("div",style="float:left; width: 88%; padding-left: 20px;")
 			question = question_info.a.string
 			question = to_string(question)
-			r['related_question_statement'] = question
+			d.append(question)
 
 			#related question url
 			url = "http://www.healthcaremagic.com"
 			url += question_info.a.get('href')
-			r['related_question_url'] = url
+			d.append(url)
 			
 			#related question id
 			match = re.search(r'\d+',url)
 			match = match.group()
 			number = match
 			number = to_number(number)
-			r['related_question_id'] = number
+			d.append(number)
 
 	#people also viewed information
 	people_viewed = main_div.find("div",class_="FullDiv anchorListing")
@@ -186,12 +185,12 @@ def get_values(page_url):
 			#viewed question
 			title = li.a.string
 			title = to_string(title)
-			r['people_viewed_question'] = title
+			d.append(title)
 			
 			#url
 			url = "http://www.healthcaremagic.com"			
 			url += li.a.get('href')
-			r['people_viewed_url'] = url
+			d.append(url)
 
 	#recent questions information
 	recent_questions_div = main_div.find("div",class_="FullDiv aList")
@@ -204,7 +203,7 @@ def get_values(page_url):
 				
 				#doctor who answered
 				title = to_string(title)
-				r['doctor_title'] = title
+				d.append(title)
 				
 				#doctor url
 				url = doctor_info.get('style')
@@ -216,28 +215,29 @@ def get_values(page_url):
 				match = match.group()
 				number = match
 				number = to_number(number)
-				r['doctor_id'] = number
+				d.append(number)
 
 			question_info = div.find("div",style="float:left; width: 88%; padding-left: 20px;")
 
 			#recent question statement
 			question = question_info.a.string
 			question = to_string(question)
-			r['recent_question_statement'] = question
+			d.append(question)
 			
 			#recent question url
 			url = "http://www.healthcaremagic.com"		
 			url += question_info.a.get('href')
-			r['recent_question_url'] = url
+			d.append(url)
 			
 			#question id
 			match = re.search(r'\d+',url)
 			match = match.group()
 			number = match
 			number = to_number(number)
-			r['recent_question_id'] = number
+			d.append(number)
 
-	write.writerow(r)
+	write.writerow(d)
+	del d
 
 #this code creates a file answers.csv and stores all the information retrived
 file = open('answers.csv','wb')
@@ -248,5 +248,4 @@ file = open('questions.csv','rb')
 read = csv.reader(file)
 for row in read:
 	get_values(row[1])
-	d.clear()
 	r.clear()

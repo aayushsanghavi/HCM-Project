@@ -65,7 +65,7 @@ def get_values(content):
 		
 		location = ""
 		for span in spans:
-			if span:
+			if not type(span.string) == None:
 				location += span.string
 		location = location.lstrip()
 		location = location.rstrip()
