@@ -5,7 +5,9 @@ import csv
 from bs4 import BeautifulSoup
 
 #url of the desired webpage
-page_url = "http://www.healthcaremagic.com/doctors"
+#page_url = "http://www.healthcaremagic.com/doctors"
+
+page_url = "http://www.healthcaremagic.com/doctors/Addiction-Medicine-Specialists/L18859S11"
 
 #this code creates a file doctors.csv and stores all the information retrived
 file = open('doctors.csv','wb')
@@ -65,8 +67,7 @@ def get_values(content):
 		
 		location = ""
 		for span in spans:
-			if not type(span.string) == None:
-				location += span.string
+			location += str(span.text)
 		location = location.lstrip()
 		location = location.rstrip()
 
