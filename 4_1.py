@@ -5,9 +5,7 @@ import csv
 from bs4 import BeautifulSoup
 
 #url of the desired webpage
-#page_url = "http://www.healthcaremagic.com/doctors"
-
-page_url = "http://www.healthcaremagic.com/doctors/Addiction-Medicine-Specialists/L18859S11"
+page_url = "http://www.healthcaremagic.com/doctors"
 
 #this code creates a file doctors.csv and stores all the information retrived
 file = open('doctors.csv','wb')
