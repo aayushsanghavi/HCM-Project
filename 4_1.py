@@ -22,20 +22,21 @@ def get_next_page(page_link):
 	
 	#this segment of code retrives the url of the next page
 	pagination = div.find("div",id="paginationDiv")
-	page_li = pagination.find_all("a",class_="box")
-	for li in page_li:
-		page_li_value = li.string
-		page_li_url = li.get('href')
-		page_li_value = page_li_value.lstrip()
-		page_li_value = page_li_value.rstrip()
-		match = re.search(r'\D+',page_li_value)
-		if match:
-			match = match.group()
+	if pagination:
+		page_li = pagination.find_all("a",class_="box")
+		for li in page_li:
+			page_li_value = li.string
+			page_li_url = li.get('href')
+			page_li_value = page_li_value.lstrip()
+			page_li_value = page_li_value.rstrip()
+			match = re.search(r'\D+',page_li_value)
 			if match:
-				next_page_url = "http://www.healthcaremagic.com" + page_li_url
-		else:
-			next_page_url = None
-	return next_page_url
+				match = match.group()
+				if match:
+					next_page_url = "http://www.healthcaremagic.com" + page_li_url
+			else:
+				next_page_url = None
+		return next_page_url
 		
 #this function retrives the title, url, id, specialisation, number of reviews and location of each doctor
 def get_values(content):
