@@ -19,12 +19,53 @@ def to_string(variable):
 	variable = variable.rstrip()
 	return variable
 
+def get_questions(content):
+	q = []
+	link = "http://www.healthcaremagic.com" + content.get('href')
+	page = urllib2.urlopen(link)
+	soup = BeautifulSoup(page,'lxml')
+	page.close()
+	inner_divs = soup.find_all("div",class_="queriesBox")
+
+	for inner_div in inner_divs:
+		a = inner_div.find("a",class_="smallTitle")
+		title = a.get('title')
+		q.append(title)
+
+		url = "http://www.healthcaremagic.com" + a.get('href')
+		url = url.lstrip()
+		url = url.rstrip()
+		q.append(url)
+
+		match = re.search(r'\d+',url)
+		if match:
+			match = match.group()
+			number = match
+			number = to_number(number)
+			q.append(number)
+
+		pagination = soup.find("div",id="paginationDiv")
+		page_li = pagination.find_all("a",class_="box")
+		for li in page_li:
+			page_li_value = li.string
+			page_li_url = li.get('href')
+			page_li_value = page_li_value.lstrip()
+			page_li_value = page_li_value.rstrip()
+			match = re.search(r'\D+',page_li_value)
+			if match:
+				match = match.group()
+				if match:
+					next_page_url = "http://www.healthcaremagic.com" + page_li_url
+			else:
+				next_page_url = None
+		return 	{'next_page':next_page_url,'q':q}
+
 def get_values(page_url):
 	page = urllib2.urlopen(page_url)
 	soup = BeautifulSoup(page,'lxml')
 	page.close()
-	
 	d = []
+	
 	main_div = soup.find("div",class_="DocBox")	
 	div1 = main_div.find("div",style="width:100%;float:left;margin:0px;")
 	div2 = main_div.find("div",class_="FullDiv")
@@ -119,20 +160,21 @@ def get_values(page_url):
 		if inner_div:
 			#professional details
 			div = inner_div.find("div",class_="row")
-			labels = div.find_all("div",class_="label")
-			values = div.find_all("div",class_="value")
-			for i in range(len(labels)):
-				labels[i] = labels[i].text
-				values[i] = values[i].text
-				labels[i] = to_string(labels[i])
-				values[i] = to_string(values[i])
-				r[labels[i]] = values[i]
+			if div:
+				labels = div.find_all("div",class_="label")
+				values = div.find_all("div",class_="value")
+				for i in range(len(labels)):
+					labels[i] = labels[i].text
+					values[i] = values[i].text
+					labels[i] = to_string(labels[i])
+					values[i] = to_string(values[i])
+					r[labels[i]] = values[i]
 		
 			div = inner_div.find("div",id="officeDetailsDiv")
 			if div:
 				#office details
-				labels = div.find_all("div",class_="label").text
-				values = div.find_all("div",class_="label").text
+				labels = div.find_all("div",class_="label")
+				values = div.find_all("div",class_="value")
 				for i in range(len(labels)):
 					labels[i] = labels[i].text
 					values[i] = values[i].text
@@ -169,44 +211,72 @@ def get_values(page_url):
 	if div5:
 		if len(div5)>=1:
 			#premium questions answered
-			inner_divs = div5[0].find_all("div",class_="smallPQIcon")
-			for inner_div in inner_divs:
-				title = inner_div.a.string
-				title = to_string(title)
-				d.append(title)
+			a = div5[0].find("a",class_="moreAnchor")
+			if a:
+				continue_extraction = True
+				while continue_extraction:
+					temp_dict = get_questions(a)
+					next_page = temp_dict['next_page']
+					d.append(temp_dict['q'])			
+					if next_page == None:
+						continue_extraction = False
+					else:
+						page_url = next_page
+			else:
+				q = []
+				inner_divs = div5[0].find_all("div",class_="queriesBox")
+				for inner_div in inner_divs:
+					a = inner_div.find("a",class_="smallTitle")
+					title = a.get('title')
+					q.append(title)
 
-				url = "http://www.healthcaremagic.com" + inner_div.a.get('href')
-				url = url.lstrip()
-				url = url.rstrip()
-				d.append(url)
+					url = "http://www.healthcaremagic.com" + a.get('href')
+					url = url.lstrip()
+					url = url.rstrip()
+					q.append(url)
 
-				match = re.search(r'\d+',url)
-				if match:
-					match = match.group()
-					number = match
-					number = to_number(number)
-					d.append(number)
+					match = re.search(r'\d+',url)
+					if match:
+						match = match.group()
+						number = match
+						number = to_number(number)
+						q.append(number)
+				d.append(q)
 		
 		if len(div5)==2:
 			#public questions answered
-			inner_divs = div5[1].find_all("div",class_="smallQIcon")
-			for inner_div in inner_divs:
-				title = inner_div.a.string
-				title = to_string(title)
-				d.append(title)
+			a = div5[1].find("a",class_="moreAnchor")
+			if a:
+				continue_extraction = True
+				while continue_extraction:
+					temp_dict = get_questions(a)
+					next_page = temp_dict['next_page']
+					d.append(temp_dict['q'])			
+					if next_page == None:
+						continue_extraction = False
+					else:
+						page_url = next_page
+			else:
+				q = []
+				inner_divs = div5[1].find_all("div",class_="queriesBox")
+				for inner_div in inner_divs:
+					a = inner_div.find("a",class_="smallTitle")
+					title = a.get('title')
+					q.append(title)
 
-				url = "http://www.healthcaremagic.com" + inner_div.a.get('href')
-				url = url.lstrip()
-				url = url.rstrip()
-				d.append(url)
+					url = "http://www.healthcaremagic.com" + a.get('href')
+					url = url.lstrip()
+					url = url.rstrip()
+					q.append(url)
 
-				match = re.search(r'\d+',url)
-				if match:
-					match = match.group()
-					number = match
-					number = to_number(number)
-					d.append(number)
-
+					match = re.search(r'\d+',url)
+					if match:
+						match = match.group()
+						number = match
+						number = to_number(number)
+						q.append(number)
+				d.append(q)
+		
 	if div6:
 		#other related questions
 		inner_divs = div6.find_all("div",class_="FullDiv linePadding5 borderBottom")
