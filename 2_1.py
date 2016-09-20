@@ -11,7 +11,7 @@ sys.setdefaultencoding('utf8')
 page_urls = []
 number_of_questions = []
 questions_per_page = 20
-url_regex = re.compile(ur'(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?\xab\xbb\u201c\u201d\u2018\u2019]))')
+#url_regex = re.compile(ur'(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?\xab\xbb\u201c\u201d\u2018\u2019]))')
 
 #this code creates a file questions.csv and stores all the information retrived
 file = open('questions.csv','wb')
@@ -21,7 +21,7 @@ write = csv.writer(file,delimiter=",")
 file = open('categories.csv','rb')
 read = csv.reader(file)
 for row in read:
-	number = row[3]
+	number = int(row[3])
 	number_of_questions.append(number)
 	url = row[1]
 	page_urls.append(url)
@@ -64,7 +64,8 @@ def get_values(page_url):
 
 #this code loops through all pages and calls the get_values function to retrive the data
 for i in range(len(page_urls)):
-	pages = int(number_of_questions[i])/int(questions_per_page)
-	for page in range(pages):
-		url = page_urls[i]+str(page)
+	page = 0
+	for page in range(number_of_questions[i]):
+		url = page_urls[i]+"/"+str(page)
 		get_values(url)
+		page += 20
