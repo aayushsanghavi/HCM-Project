@@ -3,6 +3,9 @@ import urllib2
 import re
 import csv
 from bs4 import BeautifulSoup
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 #url of the desired webpage
 page_url = "http://www.healthcaremagic.com/doctorchatlogs"
@@ -51,8 +54,8 @@ def get_values(content):
 		url = url.lstrip()
 		url = url.rstrip()
 		
-		match = re.search(r'\d+',url)
-		match = match.group()
+		match = re.search(r'/([\d]+)',url)
+		match = match.group(1)
 		number = match
 		number = int(number)
 

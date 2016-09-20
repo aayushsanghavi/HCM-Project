@@ -22,16 +22,12 @@ def get_values(page_url):
 		title = category_a.string
 		title = title.lstrip()
 		title = title.rstrip()
-		
 		url = "http://www.healthcaremagic.com"+category_a.get('href')
 		url = url.lstrip()
 		url = url.rstrip()
-		
 		match = re.search(r'\d+',url)
 		match = match.group()
 		number = match
-		number = int(number)
-
 		d = [title,url,number]
 		categories.append(d)
 
@@ -43,11 +39,11 @@ def get_values(page_url):
 		match = re.search(r'\d+',questions)
 		match = match.group()
 		number = match
-		questions = str(number)+' questions'
+		questions = int(number)
 		categories[i].append(questions)
 		i += 1
 
-#this runs the get function
+#this runs the function
 get_values(page_url)
 
 #this code creates a file categories.csv and stores all the information retrived

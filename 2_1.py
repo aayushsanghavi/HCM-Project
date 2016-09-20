@@ -3,6 +3,9 @@ import urllib
 import re
 import csv
 from bs4 import BeautifulSoup
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 #url of the desired webpage
 page_urls = []
@@ -18,10 +21,15 @@ write = csv.writer(file,delimiter=",")
 file = open('categories.csv','rb')
 read = csv.reader(file)
 for row in read:
-	row = str(row)
-	match = re.search(r'\d+ questions',row)
+	number = row[3]
+	number_of_questions.append(number)
+	url = row[1]
+	page_urls.append(url)
+
+"""	row = str(row)
+	match = re.search(r'([\d]+) questions',row)
 	if match:
-		match = match.group()
+		match = match.group(1)
 		value = match
 		number = re.search(r'\d+',value)
 		number = number.group()
@@ -31,7 +39,7 @@ for row in read:
 	if match:
 		match = match.group()
 		url = match
-		page_urls.append(url)
+		page_urls.append(url)"""
 
 #this function retrives the title and url of each question of each category
 def get_values(page_url):
