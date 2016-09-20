@@ -51,6 +51,7 @@ def get_values(content):
 		title = title.rstrip()
 
 		url = "http://www.healthcaremagic.com" + inner_div.a.get('href')
+		url = url.encode('ascii','ignore')
 		url = url.lstrip()
 		url = url.rstrip()
 		

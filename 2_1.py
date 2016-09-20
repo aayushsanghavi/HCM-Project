@@ -26,21 +26,6 @@ for row in read:
 	url = row[1]
 	page_urls.append(url)
 
-"""	row = str(row)
-	match = re.search(r'([\d]+) questions',row)
-	if match:
-		match = match.group(1)
-		value = match
-		number = re.search(r'\d+',value)
-		number = number.group()
-		number_of_questions.append(number)
-
-	match = re.search(url_regex,row)
-	if match:
-		match = match.group()
-		url = match
-		page_urls.append(url)"""
-
 #this function retrives the title and url of each question of each category
 def get_values(page_url):
 	page = urllib.urlopen(page_url)
@@ -56,6 +41,7 @@ def get_values(page_url):
 		title = title.rstrip()
 
 		url = "http://www.healthcaremagic.com" + a.get('href')
+		url = url.encode('ascii','ignore')
 		url = url.lstrip()
 		url = url.rstrip()
 		

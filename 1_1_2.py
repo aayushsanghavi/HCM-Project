@@ -44,6 +44,7 @@ def get_values(soup):
 		title = title.rstrip()
 
 		url = "http://www.healthcaremagic.com" + li.a.get('href')
+		url = url.encode('ascii','ignore')
 		url = url.lstrip()
 		url = url.rstrip()
 		

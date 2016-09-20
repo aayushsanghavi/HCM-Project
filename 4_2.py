@@ -33,13 +33,14 @@ def get_questions(content):
 		q.append(title)
 
 		url = "http://www.healthcaremagic.com" + a.get('href')
+		url = url.encode('ascii','ignore')
 		url = url.lstrip()
 		url = url.rstrip()
 		q.append(url)
 
-		match = re.search(r'\d+',url)
+		match = re.search(r'/([\d]+)',url)
 		if match:
-			match = match.group()
+			match = match.group(1)
 			number = match
 			number = to_number(number)
 			q.append(number)
@@ -231,13 +232,14 @@ def get_values(page_url):
 					q.append(title)
 
 					url = "http://www.healthcaremagic.com" + a.get('href')
+					url = url.encode('ascii','ignore')		
 					url = url.lstrip()
 					url = url.rstrip()
 					q.append(url)
 
-					match = re.search(r'\d+',url)
+					match = re.search(r'([\d]+)',url)
 					if match:
-						match = match.group()
+						match = match.group(1)
 						number = match
 						number = to_number(number)
 						q.append(number)
@@ -265,13 +267,14 @@ def get_values(page_url):
 					q.append(title)
 
 					url = "http://www.healthcaremagic.com" + a.get('href')
+					url = url.encode('ascii','ignore')		
 					url = url.lstrip()
 					url = url.rstrip()
 					q.append(url)
 
-					match = re.search(r'\d+',url)
+					match = re.search(r'([\d]+)',url)
 					if match:
-						match = match.group()
+						match = match.group(1)
 						number = match
 						number = to_number(number)
 						q.append(number)
@@ -287,13 +290,14 @@ def get_values(page_url):
 			d.append(title)
 			
 			url = "http://www.healthcaremagic.com" + a.get('href')
+			url = url.encode('ascii','ignore')		
 			url = url.lstrip()
 			url = url.rstrip()
 			d.append(url)
 			
-			match = re.search(r'/\d+',url)
+			match = re.search(r'/([\d]+)',url)
 			if match:
-				match = match.group()
+				match = match.group(1)
 				number = match
 				number = number.replace("/","")
 				number = to_number(number)
