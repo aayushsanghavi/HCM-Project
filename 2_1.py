@@ -11,7 +11,6 @@ sys.setdefaultencoding('utf8')
 page_urls = []
 number_of_questions = []
 questions_per_page = 20
-#url_regex = re.compile(ur'(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?\xab\xbb\u201c\u201d\u2018\u2019]))')
 
 #this code creates a file questions.csv and stores all the information retrived
 file = open('questions.csv','wb')

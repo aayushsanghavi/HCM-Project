@@ -46,9 +46,10 @@ def get_values(content):
 	for div in all_div:
 		inner_div = div.find("div",class_="smallPQIcon")
 		title = inner_div.a.string
-		title = title.encode('utf-8','ignore')
-		title = title.lstrip()
-		title = title.rstrip()
+		if title:
+			title = title.encode('utf-8','ignore')
+			title = title.lstrip()
+			title = title.rstrip()
 
 		url = "http://www.healthcaremagic.com" + inner_div.a.get('href')
 		url = url.encode('ascii','ignore')

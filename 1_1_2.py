@@ -51,6 +51,8 @@ def get_values(soup):
 		match = re.search(r'\d+',url)
 		match = match.group()
 		number = match
+		number = number.lstrip()
+		number = number.rstrip()
 		number = int(number)
 
 		d = [title,url,number]
