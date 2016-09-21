@@ -58,6 +58,8 @@ def get_values(content):
 		match = re.search(r'/([\d]+)',url)
 		match = match.group(1)
 		number = match
+		number = number.lstrip()
+		number = number.rstrip()		
 		number = int(number)
 
 		d = [title,url,number]
