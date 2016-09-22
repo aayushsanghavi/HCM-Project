@@ -330,11 +330,6 @@ def get_values(page_url):
 file = open('doctorsInfo.csv','wb')
 write = csv.writer(file,delimiter=",")
 
-try:
-	get_values("http://www.healthcaremagic.com/doctors/dr-dholariya-sagar-jayantilal/68518")
-except Exception, e:
-	logger.error('Failed to get_values',exc_info=True)
-
 #this code opens the doctors.csv file and retrives previously stored information
 file = open('doctors.csv','rb')
 read = csv.reader(file)
