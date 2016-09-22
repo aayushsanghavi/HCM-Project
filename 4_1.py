@@ -4,6 +4,13 @@ import re
 import csv
 from bs4 import BeautifulSoup
 import httplib
+import logging
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
+logger = logging.getLogger(__name__)
+handler = logging.FileHandler('logfile_4_2.log')
+logger.addHandler(handler)
 
 #url of the desired webpage
 page_url = "http://www.healthcaremagic.com/doctors"
@@ -47,31 +54,37 @@ def get_values(content):
 		review_div = div.find("div",style="font-size:11px;width:90%;")
 
 		title = inner_div.a.string
-		title = title.encode('ascii', 'ignore')
-		title = title.replace("  ","")
-		title = title.lstrip()
-		title = title.rstrip()
+		if title:
+			title = title.encode('ascii', 'ignore')
+			title = title.replace("  ","")
+			title = title.lstrip()
+			title = title.rstrip()
 		
 		url = "http://www.healthcaremagic.com" + inner_div.a.get('href')
-		url = url.encode('ascii','ignore')
-		url = url.lstrip()
-		url = url.rstrip()
+		if url:
+			url = url.encode('ascii','ignore')
+			url = url.lstrip()
+			url = url.rstrip()
 		
 		match = re.search(r'\d+',url)
-		match = match.group()
-		number = match
-		number = int(number)
+		if match:
+			match = match.group()
+			number = match
+			number = int(number)
 		
 		specialisation = inner_div.span.string
-		specialisation = specialisation.encode('ascii', 'ignore')
-		specialisation = specialisation.lstrip(',')
-		specialisation = specialisation.rstrip()
+		if specialisation:
+			specialisation = specialisation.encode('ascii', 'ignore')
+			specialisation = specialisation.lstrip(',')
+			specialisation = specialisation.rstrip()
 		
 		location = ""
 		for span in spans:
 			location += str(span.text)
-		location = location.lstrip()
-		location = location.rstrip()
+		if location:
+			location = location.encode('ascii','ignore')
+			location = location.lstrip()
+			location = location.rstrip()
 
 		reviews = "0"
 		if review_div:
@@ -96,7 +109,11 @@ httplib.HTTPResponse.read = patch_http_response_read(httplib.HTTPResponse.read)
 #this loop extracts all the required information from all the pages
 continue_extraction = True
 while continue_extraction:
-	next_page = get_next_page(page_url)
+	try:
+		next_page = get_next_page(page_url)	
+	except Exception, e:
+		logger.error('Error on page %s',page_url)
+		logger.error('Failed to get_next_page',exc_info=True)		
 	if next_page == None:
 		continue_extraction = False
 	else:

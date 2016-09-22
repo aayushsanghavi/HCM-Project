@@ -2,10 +2,14 @@
 import urllib
 import re
 import csv
+import logging
 from bs4 import BeautifulSoup
 import sys
 reload(sys)
 sys.setdefaultencoding('utf8')
+logger = logging.getLogger(__name__)
+handler = logging.FileHandler('logfile_2_1.log')
+logger.addHandler(handler)
 
 #url of the desired webpage
 page_urls = []
@@ -35,14 +39,15 @@ def get_values(page_url):
 	for div in all_div:
 		a = div.find("a",class_="questionTitle")
 		title = a.string
-		title = title.encode('ascii','ignore')
-		title = title.lstrip()
-		title = title.rstrip()
+		if title:
+			title = title.encode('ascii','ignore')
+			title = title.lstrip()
+			title = title.rstrip()
 
-		url = "http://www.healthcaremagic.com" + a.get('href')
-		url = url.encode('ascii','ignore')
-		url = url.lstrip()
-		url = url.rstrip()
+			url = "http://www.healthcaremagic.com" + a.get('href')
+			url = url.encode('ascii','ignore')
+			url = url.lstrip()
+			url = url.rstrip()
 		
 		d = [title,url]
 		write.writerow(d)
@@ -52,5 +57,8 @@ for i in range(len(page_urls)):
 	page = 0
 	for page in range(number_of_questions[i]):
 		url = page_urls[i]+"/"+str(page)
-		get_values(url)
+		try:			
+			get_values(url)
+		except Exception, e:
+			logger.error('Failed to get_values',exc_info=True)
 		page += 20

@@ -2,7 +2,14 @@
 import urllib2
 import re
 import csv
+import logging
 from bs4 import BeautifulSoup
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
+logger = logging.getLogger(__name__)
+handler = logging.FileHandler('logfile_4_2.log')
+logger.addHandler(handler)
 
 r = {}
 
@@ -47,6 +54,7 @@ def get_questions(content):
 
 		pagination = soup.find("div",id="paginationDiv")
 		page_li = pagination.find_all("a",class_="box")
+		next_page_url = None
 		for li in page_li:
 			page_li_value = li.string
 			page_li_url = li.get('href')
@@ -57,8 +65,6 @@ def get_questions(content):
 				match = match.group()
 				if match:
 					next_page_url = "http://www.healthcaremagic.com" + page_li_url
-			else:
-				next_page_url = None
 		return 	{'next_page':next_page_url,'q':q}
 
 def get_values(page_url):
@@ -90,7 +96,7 @@ def get_values(page_url):
 			doctor_level = to_number(doctor_level)
 			d.append(doctor_level)
 		else:
-			d.append("nil")
+			d.append("Not available")
 
 		div = div2.find("div",class_="userView")
 		if div:
@@ -99,7 +105,7 @@ def get_values(page_url):
 			views = to_number(views)
 			d.append(views)
 		else:
-			d.append("nil")
+			d.append(0)
 
 		span = div2.find("span",style="color: #777; float: left; font-size: 14px; margin-top: 1px;padding-left: 9px;")
 		if span:
@@ -109,7 +115,7 @@ def get_values(page_url):
 			agree = to_number(agree)
 			d.append(agree)
 		else:
-			d.append("nil")
+			d.append(0)
 
 		span = div2.find("span",style="color: #777; float: left; font-size: 14px; margin-top: 1px;padding-left: 7px;")
 		if span:
@@ -119,7 +125,7 @@ def get_values(page_url):
 			helpful = to_number(helpful)
 			d.append(helpful)
 		else:
-			d.append("nil")
+			d.append(0)
 
 		span = div2.find("span",style="color: #777; float: left; font-size: 14px; padding-left: 12px;")
 		if span:
@@ -132,8 +138,8 @@ def get_values(page_url):
 			answered = to_number(answered)
 			d.append(answered)
 		else:
-			d.append("nil")
-			d.append("nil")
+			d.append(0)
+			d.append(0)
 
 		div = div2.find("div",class_="bubbleStatus")
 		if div:
@@ -142,7 +148,7 @@ def get_values(page_url):
 			status = to_string(status)
 			d.append(status)
 		else:
-			d.append("nil")
+			d.append("empty")
 
 	if div3:
 		#contact details
@@ -216,7 +222,13 @@ def get_values(page_url):
 			if a:
 				continue_extraction = True
 				while continue_extraction:
-					temp_dict = get_questions(a)
+					try:					
+						temp_dict = get_questions(a)
+					except Exception, e:
+						logger.error('Error on page %s',
+							"http://www.healthcaremagic.com" + a.get('href'))
+						logger.error('Falied to run get_questions [premium questions]',
+							exc_info=True)
 					next_page = temp_dict['next_page']
 					d.append(temp_dict['q'])			
 					if next_page == None:
@@ -244,6 +256,7 @@ def get_values(page_url):
 						number = to_number(number)
 						q.append(number)
 				d.append(q)
+				del q
 		
 		if len(div5)==2:
 			#public questions answered
@@ -251,7 +264,13 @@ def get_values(page_url):
 			if a:
 				continue_extraction = True
 				while continue_extraction:
-					temp_dict = get_questions(a)
+					try:
+						temp_dict = get_questions(a)					
+					except Exception, e:
+						logger.error('Error on page %s',
+							"http://www.healthcaremagic.com" + a.get('href'))
+						logger.error('Failed to get_questions [public questions]',
+							exc_info=True)
 					next_page = temp_dict['next_page']
 					d.append(temp_dict['q'])			
 					if next_page == None:
@@ -279,6 +298,7 @@ def get_values(page_url):
 						number = to_number(number)
 						q.append(number)
 				d.append(q)
+				del q
 		
 	if div6:
 		#other related questions
@@ -310,9 +330,18 @@ def get_values(page_url):
 file = open('doctorsInfo.csv','wb')
 write = csv.writer(file,delimiter=",")
 
+try:
+	get_values("http://www.healthcaremagic.com/doctors/dr-dholariya-sagar-jayantilal/68518")
+except Exception, e:
+	logger.error('Failed to get_values',exc_info=True)
+
 #this code opens the doctors.csv file and retrives previously stored information
 file = open('doctors.csv','rb')
 read = csv.reader(file)
 for row in read:
-	get_values(row[2])
+	try:
+		get_values(row[2])	
+	except Exception, e:
+		logger.error('Error on page %s',row[2])
+		logger.error('Failed to get_values',exc_info=True)
 	r.clear()

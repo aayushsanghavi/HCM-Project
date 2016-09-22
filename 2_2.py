@@ -3,6 +3,13 @@ import urllib2
 import re
 import csv
 from bs4 import BeautifulSoup
+import sys
+import logging
+reload(sys)
+sys.setdefaultencoding('utf8')
+logger = logging.getLogger(__name__)
+handler = logging.FileHandler('logfile_2_2.log')
+logger.addHandler(handler)
 
 r = {}
 
@@ -256,5 +263,9 @@ write = csv.writer(file,delimiter=",")
 file = open('questions.csv','rb')
 read = csv.reader(file)
 for row in read:
-	get_values(row[1])
+	try:
+		get_values(row[1])	
+	except Exception, e:
+		logger.error('Error on page %s',row[1])
+		logger.error('Failed to get_values',exc_info=True)
 	r.clear()
