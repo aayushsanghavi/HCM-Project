@@ -102,9 +102,7 @@ def get_values(page_url):
 
 			url = "http://www.healthcaremagic.com"
 			url += span.a.get('href')
-			url = url.encode('ascii','ignore')
-			url = url.lstrip()
-			url = url.rstrip()		
+			url = to_string(url)
 			d.append(url)
 			
 			#doctor id
@@ -157,6 +155,7 @@ def get_values(page_url):
 				title = to_string(title)
 				d.append(title)
 				url = doctor_info.get('style')
+				url = to_string(url)
 
 				match = re.search(r'/icon/\d+',url)
 				if match:
@@ -177,9 +176,7 @@ def get_values(page_url):
 			#related question url
 			url = "http://www.healthcaremagic.com"
 			url += question_info.a.get('href')
-			url = url.encode('ascii','ignore')
-			url = url.lstrip()
-			url = url.rstrip()
+			url = to_string(url)
 			d.append(url)
 			
 			#related question id
@@ -203,9 +200,7 @@ def get_values(page_url):
 			#url
 			url = "http://www.healthcaremagic.com"			
 			url += li.a.get('href')
-			url = url.encode('ascii','ignore')
-			url = url.lstrip()
-			url = url.rstrip()
+			url = to_string(url)
 			d.append(url)
 
 	#recent questions information
@@ -223,6 +218,7 @@ def get_values(page_url):
 				
 				#doctor url
 				url = doctor_info.get('style')
+				url = to_string(url)
 
 				#doctor id
 				match = re.search(r'/icon/([\d]+)',url)
@@ -243,6 +239,7 @@ def get_values(page_url):
 			#recent question url
 			url = "http://www.healthcaremagic.com"		
 			url += question_info.a.get('href')
+			url = to_string(url)
 			d.append(url)
 			
 			#question id
