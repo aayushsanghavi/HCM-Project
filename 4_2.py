@@ -26,9 +26,7 @@ def to_string(variable):
 	variable = variable.rstrip()
 	return variable
 
-def get_questions(content):
-	q = []
-	link = "http://www.healthcaremagic.com" + content.get('href')
+def get_questions(link,Qtype):
 	page = urllib2.urlopen(link)
 	soup = BeautifulSoup(page,'lxml')
 	page.close()
@@ -36,13 +34,13 @@ def get_questions(content):
 
 	for inner_div in inner_divs:
 		a = inner_div.find("a",class_="smallTitle")
+		q = []
 		title = a.get('title')
+		title = to_string(title)
 		q.append(title)
 
 		url = "http://www.healthcaremagic.com" + a.get('href')
-		url = url.encode('ascii','ignore')
-		url = url.lstrip()
-		url = url.rstrip()
+		url = to_string(url)
 		q.append(url)
 
 		match = re.search(r'/([\d]+)',url)
@@ -52,20 +50,26 @@ def get_questions(content):
 			number = to_number(number)
 			q.append(number)
 
-		pagination = soup.find("div",id="paginationDiv")
-		page_li = pagination.find_all("a",class_="box")
-		next_page_url = None
-		for li in page_li:
-			page_li_value = li.string
-			page_li_url = li.get('href')
-			page_li_value = page_li_value.lstrip()
-			page_li_value = page_li_value.rstrip()
-			match = re.search(r'\D+',page_li_value)
+		if Qtype == 0:
+			writePQ.writerow(q)
+		else:
+			writePFQ.writerow(q)
+		del q	
+
+	pagination = soup.find("div",id="paginationDiv")
+	page_li = pagination.find_all("a",class_="box")
+	next_page_url = None
+	for li in page_li:
+		page_li_value = li.string
+		page_li_url = li.get('href')
+		page_li_url = to_string(page_li_url)
+		page_li_value = to_string(page_li_value)
+		match = re.search(r'Next',page_li_value)
+		if match:
+			match = match.group()
 			if match:
-				match = match.group()
-				if match:
-					next_page_url = "http://www.healthcaremagic.com" + page_li_url
-		return 	{'next_page':next_page_url,'q':q}
+				next_page_url = "http://www.healthcaremagic.com" + page_li_url
+	return 	next_page_url
 
 def get_values(page_url):
 	page = urllib2.urlopen(page_url)
@@ -220,25 +224,24 @@ def get_values(page_url):
 			#premium questions answered
 			a = div5[0].find("a",class_="moreAnchor")
 			if a:
+				page_url = "http://www.healthcaremagic.com" + a.get('href')
 				continue_extraction = True
 				while continue_extraction:
 					try:					
-						temp_dict = get_questions(a)
+						next_page = get_questions(page_url,0)
+						if next_page == None:
+							continue_extraction = False
+						else:
+							page_url = next_page
 					except Exception, e:
 						logger.error('Error on page %s',
 							"http://www.healthcaremagic.com" + a.get('href'))
 						logger.error('Falied to run get_questions [premium questions]',
 							exc_info=True)
-					next_page = temp_dict['next_page']
-					d.append(temp_dict['q'])			
-					if next_page == None:
-						continue_extraction = False
-					else:
-						page_url = next_page
 			else:
-				q = []
 				inner_divs = div5[0].find_all("div",class_="queriesBox")
 				for inner_div in inner_divs:
+					q = []
 					a = inner_div.find("a",class_="smallTitle")
 					title = a.get('title')
 					q.append(title)
@@ -249,38 +252,38 @@ def get_values(page_url):
 					url = url.rstrip()
 					q.append(url)
 
-					match = re.search(r'([\d]+)',url)
+					match = re.search(r'/([\d]+)',url)
 					if match:
 						match = match.group(1)
 						number = match
 						number = to_number(number)
 						q.append(number)
-				d.append(q)
-				del q
+
+					writePQ.writerow(q)
+					del q
 		
 		if len(div5)==2:
 			#public questions answered
 			a = div5[1].find("a",class_="moreAnchor")
 			if a:
 				continue_extraction = True
+				page_url = "http://www.healthcaremagic.com" + a.get('href')
 				while continue_extraction:
 					try:
-						temp_dict = get_questions(a)					
+						next_page = get_questions(page_url,1)
+						if next_page == None:
+							continue_extraction = False
+						else:
+							page_url = next_page
 					except Exception, e:
 						logger.error('Error on page %s',
 							"http://www.healthcaremagic.com" + a.get('href'))
 						logger.error('Failed to get_questions [public questions]',
 							exc_info=True)
-					next_page = temp_dict['next_page']
-					d.append(temp_dict['q'])			
-					if next_page == None:
-						continue_extraction = False
-					else:
-						page_url = next_page
 			else:
-				q = []
 				inner_divs = div5[1].find_all("div",class_="queriesBox")
 				for inner_div in inner_divs:
+					q = []
 					a = inner_div.find("a",class_="smallTitle")
 					title = a.get('title')
 					q.append(title)
@@ -291,14 +294,15 @@ def get_values(page_url):
 					url = url.rstrip()
 					q.append(url)
 
-					match = re.search(r'([\d]+)',url)
+					match = re.search(r'/([\d]+)',url)
 					if match:
 						match = match.group(1)
 						number = match
 						number = to_number(number)
 						q.append(number)
-				d.append(q)
-				del q
+
+					writePFQ.writerow(q)
+					del q
 		
 	if div6:
 		#other related questions
@@ -319,7 +323,6 @@ def get_values(page_url):
 			if match:
 				match = match.group(1)
 				number = match
-				number = number.replace("/","")
 				number = to_number(number)
 				d.append(number)
 	
@@ -333,10 +336,24 @@ write = csv.writer(file,delimiter=",")
 #this code opens the doctors.csv file and retrives previously stored information
 file = open('doctors.csv','rb')
 read = csv.reader(file)
+
 for row in read:
 	try:
-		get_values(row[2])	
+		#this creates separate files for premium and public forum questions answered by the doctor
+		pqFile = row[0]+'-'+row[3]+'-'+'premiumQuestions'+'.csv'
+		pfqFile = row[0]+'-'+row[3]+'-'+'publicQuestions'+'.csv'
+		pq = open(pqFile,'wb')
+		pfq = open(pfqFile,'wb')
+		writePQ = csv.writer(pq,delimiter=",")	
+		writePFQ = csv.writer(pfq,delimiter=",")	
+		
+		get_values(row[2])
+		pq.close()
+		pfq.close()
+
 	except Exception, e:
 		logger.error('Error on page %s',row[2])
 		logger.error('Failed to get_values',exc_info=True)
 	r.clear()
+
+write.close()
