@@ -56,7 +56,7 @@ def get_values(content):
 
 		url = "http://www.healthcaremagic.com" + inner_div.a.get('href')
 		url = to_string(url)
-		
+
 		match = re.search(r'/([\d]+)',url)
 		match = match.group(1)
 		number = match
@@ -65,6 +65,26 @@ def get_values(content):
 
 		d = [title,url,number]
 		write.writerow(d)
+
+		chat_page = urllib2.urlopen(url)
+		chat_soup = BeautifulSoup(chat_page,'lxml')
+		chat_page.close()
+		chat_divs = chat_soup.find_all("div",class_="chatrow")	
+		chat = open(title+'.txt','w')
+		if chat_divs:
+			for chat_div in chat_divs:
+				text = ''
+				spans = chat_div.find_all("span")
+				for span in spans:
+					text += span.text
+					text = to_string(text)
+				chat.write(text+'\n')
+		else:
+			chat_div = chat_soup.find("div",style="padding-top: 5px; padding-left: 4px; clear: both; width: 90%;")
+			text = chat_div.text
+			text = to_string(text)
+			chat.write(text)
+		chat.close()
 
 #this loop extracts all the required information from all the pages
 continue_extraction = True
