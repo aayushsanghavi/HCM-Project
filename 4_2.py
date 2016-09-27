@@ -247,9 +247,7 @@ def get_values(page_url):
 					q.append(title)
 
 					url = "http://www.healthcaremagic.com" + a.get('href')
-					url = url.encode('ascii','ignore')		
-					url = url.lstrip()
-					url = url.rstrip()
+					url = to_string(url)
 					q.append(url)
 
 					match = re.search(r'/([\d]+)',url)
@@ -289,9 +287,7 @@ def get_values(page_url):
 					q.append(title)
 
 					url = "http://www.healthcaremagic.com" + a.get('href')
-					url = url.encode('ascii','ignore')		
-					url = url.lstrip()
-					url = url.rstrip()
+					url = to_string(url)
 					q.append(url)
 
 					match = re.search(r'/([\d]+)',url)
@@ -314,9 +310,7 @@ def get_values(page_url):
 			d.append(title)
 			
 			url = "http://www.healthcaremagic.com" + a.get('href')
-			url = url.encode('ascii','ignore')		
-			url = url.lstrip()
-			url = url.rstrip()
+			url = to_string(url)
 			d.append(url)
 			
 			match = re.search(r'/([\d]+)',url)

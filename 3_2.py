@@ -64,11 +64,101 @@ def get_values(content):
 		number = int(number)
 
 		d = [title,url,number]
-		write.writerow(d)
 
 		chat_page = urllib2.urlopen(url)
 		chat_soup = BeautifulSoup(chat_page,'lxml')
 		chat_page.close()
+		
+		#people also viewed information
+		people_viewed = chat_soup.find("div",class_="FullDiv anchorListing")
+		if people_viewed:
+			all_li = people_viewed.find_all("li")
+			for li in all_li:
+
+				#viewed question
+				title = li.a.string
+				title = to_string(title)
+				d.append(title)
+				
+				#url
+				url = "http://www.healthcaremagic.com"			
+				url += li.a.get('href')
+				url = to_string(url)
+				d.append(url)
+
+		#related questions
+		inner_div = chat_soup.find_all("div",class_="FullDiv linePadding5 borderBottom")
+		if inner_div:
+			for div in inner_div:
+				#doctor information
+				doctor_info = div.find("div",class_="doctorPhotoSmall")
+				title = doctor_info.get('title')
+				if title:
+					title = to_string(title)
+					d.append(title)
+
+					url = doctor_info.get('style')
+					url = to_string(url)
+
+					match = re.search(r'/icon/([\d]+)',url)
+					if match:
+						match = match.group(1)		
+						number = match
+						number = to_string(number)
+						number = int(number)
+						d.append(number)
+					else:
+						d.append("nil")
+
+				#related question information
+				a = div.find("a")
+				question = a.string
+				question = to_string(question)
+				d.append(question)
+
+				#related question url
+				url = "http://www.healthcaremagic.com"
+				url += a.get('href')
+				url = to_string(url)
+				d.append(url)
+				
+				#related question id
+				match = re.search(r'\d+',url)
+				match = match.group()
+				number = match
+				number = to_string(number)
+				number = int(number)
+				d.append(number)
+
+		#other doctor chats information
+		recent_questions_div = chat_soup.find_all("div",class_="FullDiv linePadding10")
+		recent_questions_div = recent_questions_div[1]
+		if recent_questions_div:
+			inner_div = recent_questions_div.find_all("div",class_="queriesBox")
+			for div in inner_div:
+				a = div.find("a")
+
+				#recent question statement
+				question = a.string
+				question = to_string(question)
+				d.append(question)
+				
+				#recent question url
+				url = "http://www.healthcaremagic.com"		
+				url += a.get('href')
+				url = to_string(url)
+				d.append(url)
+				
+				#question id
+				match = re.search(r'\d+',url)
+				match = match.group()
+				number = match
+				number = to_string(number)
+				number = int(number)
+				d.append(number)
+
+		write.writerow(d)
+
 		chat_divs = chat_soup.find_all("div",class_="chatrow")	
 		chat = open(title+'.txt','w')
 		if chat_divs:
@@ -86,6 +176,9 @@ def get_values(content):
 			chat.write(text)
 		chat.close()
 
+get_next_page(page_url)
+
+"""
 #this loop extracts all the required information from all the pages
 continue_extraction = True
 while continue_extraction:
@@ -94,3 +187,4 @@ while continue_extraction:
 		continue_extraction = False
 	else:
 		page_url = next_page
+"""
