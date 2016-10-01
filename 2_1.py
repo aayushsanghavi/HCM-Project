@@ -36,6 +36,7 @@ def get_values(page_url):
 	page.close()
 	
 	all_div = soup.find_all("div",class_="questionBox linePadding10")
+	num = len(all_div)
 	for div in all_div:
 		a = div.find("a",class_="questionTitle")
 		title = a.string
@@ -52,13 +53,20 @@ def get_values(page_url):
 		d = [title,url]
 		write.writerow(d)
 
+	if num==questions_per_page:
+		return 1
+	else:
+		return 0
+
 #this code loops through all pages and calls the get_values function to retrive the data
 for i in range(len(page_urls)):
 	page = 0
-	for page in range(number_of_questions[i]):
+	for j in range(number_of_questions[i]/questions_per_page):
 		url = page_urls[i]+"/"+str(page)
 		try:			
-			get_values(url)
+			keep_doing = get_values(url)
+			if not keep_doing:
+				break
 		except Exception, e:
 			logger.error('Failed to get_values',exc_info=True)
 		page += 20

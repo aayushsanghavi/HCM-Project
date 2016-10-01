@@ -31,6 +31,7 @@ def get_values(page_url):
 		match = re.search(r'\d+',url)
 		match = match.group()
 		number = match
+		number = int(number)
 		d = [title,url,number]
 		categories.append(d)
 
