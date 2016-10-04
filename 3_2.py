@@ -176,9 +176,6 @@ def get_values(content):
 			chat.write(text)
 		chat.close()
 
-get_next_page(page_url)
-
-"""
 #this loop extracts all the required information from all the pages
 continue_extraction = True
 while continue_extraction:
@@ -187,4 +184,3 @@ while continue_extraction:
 		continue_extraction = False
 	else:
 		page_url = next_page
-"""

@@ -19,6 +19,12 @@ page_url = "http://www.healthcaremagic.com/doctors"
 file = open('doctors.csv','wb')
 write = csv.writer(file,delimiter=",")
 
+def to_string(title):
+	title = title.encode('ascii', 'ignore')
+	title = title.lstrip()
+	title = title.rstrip()
+	return title
+
 #this function retrives the next page url and the data from that page
 def get_next_page(page_link):
 	page = urllib2.urlopen(page_link)
@@ -55,16 +61,12 @@ def get_values(content):
 
 		title = inner_div.a.string
 		if title:
-			title = title.encode('ascii', 'ignore')
 			title = title.replace("  ","")
-			title = title.lstrip()
-			title = title.rstrip()
+			title = to_string(title)
 		
 		url = "http://www.healthcaremagic.com" + inner_div.a.get('href')
 		if url:
-			url = url.encode('ascii','ignore')
-			url = url.lstrip()
-			url = url.rstrip()
+			url = to_string(url)
 		
 		match = re.search(r'\d+',url)
 		if match:
@@ -74,23 +76,17 @@ def get_values(content):
 		
 		specialisation = inner_div.span.string
 		if specialisation:
-			specialisation = specialisation.encode('ascii', 'ignore')
-			specialisation = specialisation.lstrip(',')
-			specialisation = specialisation.rstrip()
+			specialisation = to_string(specialisation)
 		
 		location = ""
 		for span in spans:
 			location += str(span.text)
 		if location:
-			location = location.encode('ascii','ignore')
-			location = location.lstrip()
-			location = location.rstrip()
+			location = to_string(location)
 
 		reviews = "0"
 		if review_div:
-			reviews = review_div.text
-			reviews = reviews.lstrip()
-			reviews = reviews.rstrip()
+			reviews = to_string(reviews)
 		reviews = int(reviews)
 
 		d = [title,specialisation,url,number,location,reviews]
