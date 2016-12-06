@@ -13,17 +13,15 @@ logger.addHandler(handler)
 
 r = {}
 
-def to_number(variable):
-	variable = variable.encode('ascii','ignore')
-	variable = variable.lstrip()
-	variable = variable.rstrip()
-	variable = int(variable)
-	return variable
-
 def to_string(variable):
 	variable = variable.encode('ascii','ignore')
 	variable = variable.lstrip()
 	variable = variable.rstrip()
+	return variable
+
+def to_number(variable):
+	variable = to_string(variable)
+	variable = int(variable)
 	return variable
 
 def get_values(page_url):
@@ -35,7 +33,7 @@ def get_values(page_url):
 	main_div = soup.find("div",class_="outerBox")	
 	outer_div = main_div.find("div",class_="questionDivWrapper")
 	div = outer_div.find("div",class_="questionDivWrapper")
-	inner_div = div.find("div",class_="postQuestion")	
+	inner_div = div.find("div",class_="postQuestion")
 	
 	#question title
 	h1 = outer_div.find("h1",class_="OrangeH1")
@@ -107,20 +105,22 @@ def get_values(page_url):
 			
 			#doctor id
 			match = re.search(r'/([\d]+)',url)
-			match = match.group(1)
-			number = match
-			number = to_number(number)
-			d.append(number)
+			if match:
+				match = match.group(1)
+				number = match
+				number = to_number(number)
+				d.append(number)
 			
 			#doctors who agree with the answer
 			p = answers_div.find("p",style="color:#19730e;padding-top:2px;")
 			if p:
 				agree = p.string
 				match = re.search(r'\d+',agree)
-				match = match.group()
-				number = match
-				number = to_number(number)
-				d.append(number)
+				if match:
+					match = match.group()
+					number = match
+					number = to_number(number)
+					d.append(number)
 
 		user_info = answers_div.find("span",class_="userResponse")
 		if user_info:
@@ -157,34 +157,33 @@ def get_values(page_url):
 				url = doctor_info.get('style')
 				url = to_string(url)
 
-				match = re.search(r'/icon/\d+',url)
+				match = re.search(r'/icon/([\d]+)',url)
 				if match:
-					match = match.group()		
-					match = re.search(r'\d+',match)
-					if match:			
-						match = match.group()
-						number = match
-						number = to_number(number)
-						d.append(number)
+					match = match.group(1)		
+					number = match
+					number = to_number(number)
+					d.append(number)
 
 			#related question information
 			question_info = div.find("div",style="float:left; width: 88%; padding-left: 20px;")
-			question = question_info.a.string
-			question = to_string(question)
-			d.append(question)
+			if question_info:
+				question = question_info.a.string
+				question = to_string(question)
+				d.append(question)
 
-			#related question url
-			url = "http://www.healthcaremagic.com"
-			url += question_info.a.get('href')
-			url = to_string(url)
-			d.append(url)
-			
-			#related question id
-			match = re.search(r'\d+',url)
-			match = match.group()
-			number = match
-			number = to_number(number)
-			d.append(number)
+				#related question url
+				url = "http://www.healthcaremagic.com"
+				url += question_info.a.get('href')
+				url = to_string(url)
+				d.append(url)
+				
+				#related question id
+				match = re.search(r'\d+',url)
+				if match:
+					match = match.group()
+					number = match
+					number = to_number(number)
+					d.append(number)
 
 	#people also viewed information
 	people_viewed = main_div.find("div",class_="FullDiv anchorListing")
@@ -222,12 +221,11 @@ def get_values(page_url):
 
 				#doctor id
 				match = re.search(r'/icon/([\d]+)',url)
-				match = match.group()			
-				match = re.search(r'\d+',match)
-				match = match.group()
-				number = match
-				number = to_number(number)
-				d.append(number)
+				if  match:
+					match = match.group(1)		
+					number = match
+					number = to_number(number)
+					d.append(number)
 
 			question_info = div.find("div",style="float:left; width: 88%; padding-left: 20px;")
 
@@ -244,25 +242,57 @@ def get_values(page_url):
 			
 			#question id
 			match = re.search(r'\d+',url)
-			match = match.group()
-			number = match
-			number = to_number(number)
-			d.append(number)
+			if match:
+				match = match.group()
+				number = match
+				number = to_number(number)
+				d.append(number)
 
 	write.writerow(d)
 	del d
 
-#this code creates a file answers.csv and stores all the information retrived
-file = open('answers.csv','wb')
-write = csv.writer(file,delimiter=",")
-
 #this piece of code opens the questions.csv file and retrives previously stored information
-file = open('questions.csv','rb')
-read = csv.reader(file)
-for row in read:
-	try:
-		get_values(row[1])	
-	except Exception, e:
-		logger.error('Error on page %s',row[1])
-		logger.error('Failed to get_values',exc_info=True)
-	r.clear()
+file3 = open('categories.csv','rb')
+read = csv.reader(file3)
+
+for row in read:	
+	file = row[0]+" questions.csv"
+	#this creates a file for each category and stores all the questions retrived
+	file2 = open(file,'rb')
+	questions = csv.reader(file2)
+
+	file = row[0]+" answers.csv"
+	#this code creates a file answers.csv and stores all the information retrived
+	file1 = open(file,'wb')
+	write = csv.writer(file1,delimiter=",")
+
+	temp = open('temp.csv','wb')
+	temp_write = csv.writer(temp,delimiter=",")
+
+	for question in questions:
+		try:
+			get_values(question[1])	
+		except Exception, e:
+			logger.error('Error on page %s',question[1])
+			logger.error('Failed to get_values',exc_info=True)
+			temp_a = []
+			temp_a.append(question[1])		
+			temp_write.writerow(temp_a)
+			del temp_a
+		r.clear()
+
+	file2.close()
+	temp.close()
+
+	file2 = open('temp.csv','rb')
+	questions = csv.reader(file2)
+	for question in questions:
+		try:
+			get_values(question[0])	
+		except Exception, e:
+			logger.error('Error on page %s',question[0])
+			logger.error('Failed to get_values',exc_info=True)
+		r.clear()
+
+	file1.close()
+	temp.close()

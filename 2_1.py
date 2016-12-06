@@ -11,23 +11,7 @@ logger = logging.getLogger(__name__)
 handler = logging.FileHandler('logfile_2_1.log')
 logger.addHandler(handler)
 
-#url of the desired webpage
-page_urls = []
-number_of_questions = []
 questions_per_page = 20
-
-#this code creates a file questions.csv and stores all the information retrived
-file = open('questions.csv','wb')
-write = csv.writer(file,delimiter=",")
-
-#this piece of code opens the categories.csv file and retrives previously stored information
-file = open('categories.csv','rb')
-read = csv.reader(file)
-for row in read:
-	number = int(row[3])
-	number_of_questions.append(number)
-	url = row[1]
-	page_urls.append(url)
 
 #this function retrives the title and url of each question of each category
 def get_values(page_url):
@@ -53,20 +37,40 @@ def get_values(page_url):
 		d = [title,url]
 		write.writerow(d)
 
-	if num==questions_per_page:
+	if (num == questions_per_page):
 		return 1
 	else:
 		return 0
 
-#this code loops through all pages and calls the get_values function to retrive the data
-for i in range(len(page_urls)):
+#this piece of code opens the categories.csv file and retrives previously stored information
+file2 = open('categories.csv','rb')
+read = csv.reader(file2)
+for row in read:
+	file = row[0]+" questions.csv"
+	#this creates a file for each category and stores all the questions retrived
+	file1 = open(file,'wb')
+	write = csv.writer(file1,delimiter=",")
 	page = 0
-	for j in range(number_of_questions[i]/questions_per_page):
-		url = page_urls[i]+"/"+str(page)
-		try:			
+	loops = int(row[3])/questions_per_page
+	for i in range(loops):
+		url = row[1]+"/"+str(page)
+		try:
 			keep_doing = get_values(url)
 			if not keep_doing:
 				break
 		except Exception, e:
+			logger.error('Error on page %s',url)
 			logger.error('Failed to get_values',exc_info=True)
 		page += 20
+	
+	if i == loops-1:
+		page += 1
+		url = row[1]+"/"+str(page)
+		try:
+			keep_doing = get_values(url)
+		except Exception, e:
+			logger.error('Error on page %s',url)
+			logger.error('Failed to get_values',exc_info=True)
+	
+	file1.close()
+file2.close()
