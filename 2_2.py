@@ -7,12 +7,15 @@ import sys
 import logging
 reload(sys)
 sys.setdefaultencoding('utf8')
+
+#log file setup
 logger = logging.getLogger(__name__)
 handler = logging.FileHandler('logfile_2_2.log')
 logger.addHandler(handler)
 
 r = {}
 
+#these functions do type conversions
 def to_string(variable):
 	variable = variable.encode('ascii','ignore')
 	variable = variable.lstrip()
@@ -24,8 +27,10 @@ def to_number(variable):
 	variable = int(variable)
 	return variable
 
+#the main function that retrives the required data
 def get_values(page_url):
 	d = []
+	#opens the requested page
 	page = urllib2.urlopen(page_url)
 	soup = BeautifulSoup(page,'lxml')
 	page.close()
@@ -83,6 +88,7 @@ def get_values(page_url):
 		d.append(r)
 		r.clear()
 
+	#answer content
 	answers_divs = main_div.find_all("div",class_="answerWrapper")
 	for answers_div in answers_divs:
 		doctor_info = answers_div.find("div",class_="doctorResponse")
@@ -251,11 +257,11 @@ def get_values(page_url):
 	write.writerow(d)
 	del d
 
-#this piece of code opens the questions.csv file and retrives previously stored information
+#opens the categories.csv file and retrives category name and url
 file3 = open('categories.csv','rb')
 read = csv.reader(file3)
 
-for row in read:	
+for row in read:
 	file = row[0]+" questions.csv"
 	#this creates a file for each category and stores all the questions retrived
 	file2 = open(file,'rb')
@@ -266,6 +272,7 @@ for row in read:
 	file1 = open(file,'wb')
 	write = csv.writer(file1,delimiter=",")
 
+	#creates a temporary file that stores entries which had problems being retrived in the first try
 	temp = open('temp.csv','wb')
 	temp_write = csv.writer(temp,delimiter=",")
 
@@ -276,6 +283,7 @@ for row in read:
 			logger.error('Error on page %s',question[1])
 			logger.error('Failed to get_values',exc_info=True)
 			temp_a = []
+			#write the entry with errors to temp
 			temp_a.append(question[1])		
 			temp_write.writerow(temp_a)
 			del temp_a
@@ -284,6 +292,7 @@ for row in read:
 	file2.close()
 	temp.close()
 
+	#open temp and run the get_values function again to retrive the lost entries
 	file2 = open('temp.csv','rb')
 	questions = csv.reader(file2)
 	for question in questions:
@@ -296,3 +305,6 @@ for row in read:
 
 	file1.close()
 	temp.close()
+
+## To note that in very few cases the url causes infinite redirection loops
+## Those entries will not be extracted but will be logged.

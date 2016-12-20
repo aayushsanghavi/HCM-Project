@@ -42,7 +42,7 @@ def get_values(page_url):
 	else:
 		return 0
 
-#this piece of code opens the categories.csv file and retrives previously stored information
+#opens the categories.csv file and retrives previously stored information
 file2 = open('categories.csv','rb')
 read = csv.reader(file2)
 for row in read:
@@ -52,6 +52,7 @@ for row in read:
 	write = csv.writer(file1,delimiter=",")
 	page = 0
 	loops = int(row[3])/questions_per_page
+	#loops through all pages and questions
 	for i in range(loops):
 		url = row[1]+"/"+str(page)
 		try:
@@ -63,6 +64,7 @@ for row in read:
 			logger.error('Failed to get_values',exc_info=True)
 		page += 20
 	
+	#if it reached the last page
 	if i == loops-1:
 		page += 1
 		url = row[1]+"/"+str(page)
