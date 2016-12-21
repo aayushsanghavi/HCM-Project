@@ -8,6 +8,8 @@ import logging
 import sys
 reload(sys)
 sys.setdefaultencoding('utf8')
+
+#log file setup
 logger = logging.getLogger(__name__)
 handler = logging.FileHandler('logfile_4_2.log')
 logger.addHandler(handler)
@@ -59,11 +61,13 @@ def get_values(content):
 		spans = div.find_all("span",style="font-size:11px;")
 		review_div = div.find("div",style="font-size:11px;width:90%;")
 
+		#doctor title
 		title = inner_div.a.string
 		if title:
 			title = title.replace("  ","")
 			title = to_string(title)
 		
+		#doctor link
 		url = "http://www.healthcaremagic.com" + inner_div.a.get('href')
 		if url:
 			url = to_string(url)
@@ -74,16 +78,19 @@ def get_values(content):
 			number = match
 			number = int(number)
 		
+		#doctor specialisation
 		specialisation = inner_div.span.string
 		if specialisation:
 			specialisation = to_string(specialisation)
 		
+		#doctor location
 		location = ""
 		for span in spans:
 			location += str(span.text)
 		if location:
 			location = to_string(location)
 
+		#doctor reviews
 		reviews = "0"
 		if review_div:
 			reviews = to_string(reviews)
@@ -92,6 +99,7 @@ def get_values(content):
 		d = [title,specialisation,url,number,location,reviews]
 		write.writerow(d)
 
+#fix for some http errors
 def patch_http_response_read(func):
     def inner(*args):
         try:

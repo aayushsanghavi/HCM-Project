@@ -6,7 +6,11 @@ import logging
 from bs4 import BeautifulSoup
 import sys
 reload(sys)
+
+#default encoding is utf8
 sys.setdefaultencoding('utf8')
+
+#log file setup
 logger = logging.getLogger(__name__)
 handler = logging.FileHandler('logfile_4_2.log')
 logger.addHandler(handler)
@@ -26,6 +30,7 @@ def to_string(variable):
 	variable = variable.rstrip()
 	return variable
 
+#extracts the premium and public forum questions answered by the doctor
 def get_questions(link,Qtype):
 	page = urllib2.urlopen(link)
 	soup = BeautifulSoup(page,'lxml')
@@ -71,6 +76,7 @@ def get_questions(link,Qtype):
 				next_page_url = "http://www.healthcaremagic.com" + page_li_url
 	return 	next_page_url
 
+#extracts information about the doctor
 def get_values(page_url):
 	page = urllib2.urlopen(page_url)
 	soup = BeautifulSoup(page,'lxml')
