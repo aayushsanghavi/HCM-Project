@@ -85,8 +85,155 @@ def get_values(page_url):
 			content = content.rstrip(", ")
 			r[title] = content
 	
-		d.append(r)
-		r.clear()
+	d.append(r)
+	r.clear()
+	
+	#related questions
+	related_questions_div = main_div.find("div",class_="FullDiv relatedFullTextList")
+	length = 0
+	if related_questions_div:
+		inner_div = related_questions_div.find_all("div",class_="FullDiv linePadding5 borderBottom")
+		length = len(inner_div)
+	
+		for div in inner_div:
+			#doctor information
+			doctor_info = div.find("div",class_="doctorPhotoSmall")
+			title = doctor_info.get('title')
+			if title:
+				#doctor who answered
+				title = to_string(title)
+				d.append(title)
+
+				url = doctor_info.get('style')
+				url = to_string(url)
+				#doctor id
+				match = re.search(r'/icon/([\d]+)',url)
+				if match:
+					match = match.group(1)		
+					number = match
+					number = to_number(number)
+					d.append(number)
+				else:
+					d.append('')
+			else:
+				d.append('')
+				d.append('')
+
+			#related question information
+			question_info = div.find("div",style="float:left; width: 88%; padding-left: 20px;")
+			if question_info:
+				question = question_info.a.string
+				question = to_string(question)
+				d.append(question)
+
+				#related question url
+				url = "http://www.healthcaremagic.com"
+				url += question_info.a.get('href')
+				url = to_string(url)
+				d.append(url)
+				
+				#related question id
+				match = re.search(r'\d+',url)
+				if match:
+					match = match.group()
+					number = match
+					number = to_number(number)
+					d.append(number)
+				else:
+					d.append('')
+
+	#insert empty cells if number of entries are less
+	if length < 3:
+		for x in range(0,3-length):
+			for x in range(0,5):			
+				d.append('')
+
+	#people also viewed information
+	people_viewed = main_div.find("div",class_="FullDiv anchorListing")
+	length = 0
+	if people_viewed:
+		all_li = people_viewed.find_all("li")
+		length = len(all_li)
+
+		for li in all_li:
+			#viewed question
+			title = li.a.string
+			title = to_string(title)
+			d.append(title)
+			
+			#url
+			url = "http://www.healthcaremagic.com"			
+			url += li.a.get('href')
+			url = to_string(url)
+			d.append(url)
+
+	#insert empty cells if number of entries are less
+	if length < 15:
+		for x in range(0,15-length):
+			for x in range(0,2):			
+				d.append('')
+	
+	#recent questions information
+	recent_questions_div = main_div.find("div",class_="FullDiv aList")
+	length = 0
+	if recent_questions_div:
+		inner_div = recent_questions_div.find_all("div",class_="FullDiv linePadding5 borderBottom")
+		length = len(inner_div)
+		
+		for div in inner_div:
+			#doctor information
+			doctor_info = div.find("div",class_="doctorPhotoSmall")
+			title = doctor_info.get('title')
+			if title:
+				#doctor who answered
+				title = to_string(title)
+				d.append(title)
+				
+				#doctor url
+				url = doctor_info.get('style')
+				url = to_string(url)
+
+				#doctor id
+				match = re.search(r'/icon/([\d]+)',url)
+				if  match:
+					match = match.group(1)		
+					number = match
+					number = to_number(number)
+					d.append(number)
+				else:
+					d.append('')
+
+			else:
+				d.append('')
+				d.append('')
+
+			question_info = div.find("div",style="float:left; width: 88%; padding-left: 20px;")
+			#recent question statement
+			question = question_info.a.string
+			question = to_string(question)
+			d.append(question)
+			
+			#recent question url
+			url = "http://www.healthcaremagic.com"		
+			url += question_info.a.get('href')
+			url = to_string(url)
+			d.append(url)
+			
+			#question id
+			match = re.search(r'\d+',url)
+			if match:
+				match = match.group()
+				number = match
+				number = to_number(number)
+				d.append(number)
+			else:
+				d.append('')
+
+	#insert empty cells if number of entries are less
+	if length < 7:
+		for x in range(0,7-length):
+			for x in range(0,6):			
+				d.append('')
 
 	#answer content
 	answers_divs = main_div.find_all("div",class_="answerWrapper")
@@ -116,6 +263,8 @@ def get_values(page_url):
 				number = match
 				number = to_number(number)
 				d.append(number)
+			else:
+				d.append('')
 			
 			#doctors who agree with the answer
 			p = answers_div.find("p",style="color:#19730e;padding-top:2px;")
@@ -127,6 +276,8 @@ def get_values(page_url):
 					number = match
 					number = to_number(number)
 					d.append(number)
+				else:
+					d.append('')
 
 		user_info = answers_div.find("span",class_="userResponse")
 		if user_info:
@@ -148,120 +299,15 @@ def get_values(page_url):
 		date = date.replace("Answered:","")
 		date = to_string(date)
 		d.append(date)
-	
-	#related questions
-	related_questions_div = main_div.find("div",class_="FullDiv relatedFullTextList")
-	if related_questions_div:
-		inner_div = related_questions_div.find_all("div",class_="FullDiv linePadding5 borderBottom")
-		for div in inner_div:
-			#doctor information
-			doctor_info = div.find("div",class_="doctorPhotoSmall")
-			title = doctor_info.get('title')
-			if title:
-				title = to_string(title)
-				d.append(title)
-				url = doctor_info.get('style')
-				url = to_string(url)
-
-				match = re.search(r'/icon/([\d]+)',url)
-				if match:
-					match = match.group(1)		
-					number = match
-					number = to_number(number)
-					d.append(number)
-
-			#related question information
-			question_info = div.find("div",style="float:left; width: 88%; padding-left: 20px;")
-			if question_info:
-				question = question_info.a.string
-				question = to_string(question)
-				d.append(question)
-
-				#related question url
-				url = "http://www.healthcaremagic.com"
-				url += question_info.a.get('href')
-				url = to_string(url)
-				d.append(url)
-				
-				#related question id
-				match = re.search(r'\d+',url)
-				if match:
-					match = match.group()
-					number = match
-					number = to_number(number)
-					d.append(number)
-
-	#people also viewed information
-	people_viewed = main_div.find("div",class_="FullDiv anchorListing")
-	if people_viewed:
-		all_li = people_viewed.find_all("li")
-		for li in all_li:
-
-			#viewed question
-			title = li.a.string
-			title = to_string(title)
-			d.append(title)
-			
-			#url
-			url = "http://www.healthcaremagic.com"			
-			url += li.a.get('href')
-			url = to_string(url)
-			d.append(url)
-
-	#recent questions information
-	recent_questions_div = main_div.find("div",class_="FullDiv aList")
-	if recent_questions_div:
-		inner_div = recent_questions_div.find_all("div",class_="FullDiv linePadding5 borderBottom")
-		for div in inner_div:
-			doctor_info = div.find("div",class_="doctorPhotoSmall")
-			title = doctor_info.get('title')
-			if title:
-				
-				#doctor who answered
-				title = to_string(title)
-				d.append(title)
-				
-				#doctor url
-				url = doctor_info.get('style')
-				url = to_string(url)
-
-				#doctor id
-				match = re.search(r'/icon/([\d]+)',url)
-				if  match:
-					match = match.group(1)		
-					number = match
-					number = to_number(number)
-					d.append(number)
-
-			question_info = div.find("div",style="float:left; width: 88%; padding-left: 20px;")
-
-			#recent question statement
-			question = question_info.a.string
-			question = to_string(question)
-			d.append(question)
-			
-			#recent question url
-			url = "http://www.healthcaremagic.com"		
-			url += question_info.a.get('href')
-			url = to_string(url)
-			d.append(url)
-			
-			#question id
-			match = re.search(r'\d+',url)
-			if match:
-				match = match.group()
-				number = match
-				number = to_number(number)
-				d.append(number)
 
 	write.writerow(d)
 	del d
 
-#opens the categories.csv file and retrives category name and url
+#this piece of code opens the questions.csv file and retrives previously stored information
 file3 = open('categories.csv','rb')
 read = csv.reader(file3)
 
-for row in read:
+for row in read:	
 	file = row[0]+" questions.csv"
 	#this creates a file for each category and stores all the questions retrived
 	file2 = open(file,'rb')
