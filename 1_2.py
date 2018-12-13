@@ -13,8 +13,8 @@ def get_next_page(page_link):
 		page_li_url = li.get('href')
 		page_li_value = li.string.strip()
 		match = re.search(r'\D+', page_li_value)
-		if match and match.group(): return "http://www.healthcaremagic.com" + page_li_url
-		return None
+		if match: return "http://www.healthcaremagic.com" + page_li_url
+	return None
 
 #this function retrives the title, url and number of each category for the specific url
 def get_values(soup):
