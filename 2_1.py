@@ -38,3 +38,4 @@ for row in read:
 			logger.error('Error on page %s', url)
 			logger.error('Failed to get_values', exc_info=True)
 		page_num += 20
+quit()

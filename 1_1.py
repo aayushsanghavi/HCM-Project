@@ -27,3 +27,4 @@ for i, category_span in enumerate(categories_span):
 write = csv.writer(open('categories.csv','w'), delimiter=",")
 for category in categories:
 	write.writerow(category)
+quit()

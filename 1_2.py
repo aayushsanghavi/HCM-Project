@@ -33,3 +33,4 @@ for webpage in webpages:
 	page_url = "http://www.healthcaremagic.com/topics/" + webpage
 	while page_url:
 		page_url = get_next_page(page_url)
+quit()
