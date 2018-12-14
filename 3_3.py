@@ -1,187 +1,78 @@
-#importing python modules and libraries
-import urllib2
 import re
-import csv
-from bs4 import BeautifulSoup
 import sys
+import csv
 import logging
-reload(sys)
-sys.setdefaultencoding('utf8')
+from datetime import date
+from urllib import request
+from bs4 import BeautifulSoup
 
-#log file setup
 logger = logging.getLogger(__name__)
 handler = logging.FileHandler('logfile_3_3.log')
 logger.addHandler(handler)
 
-#global variables
-url = "http://www.healthcaremagic.com"
+def get_date():
+	today = date.today()
+	day = today.strftime("%A")[:3]
+	month = today.strftime("%B")[:3]
+	return day + ", " + today.strftime("%d") + " " + month + " " + today.strftime("%Y")
 
-#these functions do type conversions
-def to_string(variable):
-	variable = variable.encode('ascii','ignore')
-	variable = variable.lstrip()
-	variable = variable.rstrip()
-	return variable
+def get_values(row):
+	title, page_url, question_id = row
+	page = request.urlopen(page_url).read().decode("utf-8", "ignore")
+	soup = BeautifulSoup(page, "html.parser")
 
-def to_number(variable):
-	variable = to_string(variable)
-	variable = int(variable)
-	return variable
+	main_div = soup.find("div", class_="contentwrapper")
+	questions = main_div.find_all("div", class_="leftarrow-box")
+	answers = main_div.find_all("div", class_="rightarrow-box")
+	doc_div = main_div.find("div", class_="doctor-details mt-0")
+	inner_spans = doc_div.find_all("span")
+	rating_div = doc_div.find("div",class_="innerDiv")
 
-def get_values(page_url):
-	d = []
-	#opens the requested page
-	page = urllib2.urlopen(page_url)
-	soup = BeautifulSoup(page,'lxml')
-	page.close()
-		
-	outer_div = soup.find("div",style="float:left; width : 67%;")	
-	main_div = outer_div.find("div",style="float:left; width: 100%; font-size: 14px; line-height: 18px; padding-top: 10px;")
-	doc_div = main_div.find("div",class_="premiumDocStrip")
-	answers = main_div.find_all("div",class_="followupQBox")
-	questions = main_div.find_all("div",class_="premiumQBox")
-	times = main_div.find_all("span",style="font-size:14px;color:#999;")
-	peers = main_div.find_all("a",itemprop="editor")
+	# posted in category
+	category = doc_div.find("a").string.strip()
+	# doctor name
+	name = doc_div.find("h5").find("a").string.strip()
+	# doctor speciality
+	speciality = doc_div.find("p").string.strip()
+	# doctor practicing since
+	practicing = inner_spans[0].text
+	# number of questions answered
+	answered = re.search(r"\d+", inner_spans[1].text).group()
+	# star rating
+	stars = re.search(r"\d+", rating_div.get("style")).group()
+	stars = int(stars) / 20
 
-	#question title
-	h1 = outer_div.find("h1",class_="OrangeH1")
-	title = h1.string
-	title = to_string(title)
-	d.append(title)
+	d = [question_id, category, name, speciality, practicing, answered, stars]
 
-	#question url
-	d.append(page_url)
+	# user acceptance
+	acceptance = main_div.find("div", class_="col-lg-8").find("h4").string.strip()
+	if "accepted" in acceptance: d.append("Yes")
+	else: d.append("No")
 
-	#question id
-	question_id = re.search(r"\d+",page_url)
-	question_id = question_id.group()
-	question_id = to_number(question_id)
-	d.append(question_id)
-
-	#posted in category
-	span = main_div.find("span",class_="premiumTime")
-	a = span.find("a")
-	category = a.string
-	category = to_string(category)
-	d.append(category)
-
-	#doctor name
-	doc_inner_div = doc_div.find("div",style="width:60%; float:left;line-height:22px; padding-left: 10px;")
-	inner_divs = doc_inner_div.find_all("div")
-	a = inner_divs[0].find("a")
-	name = a.string
-	name = to_string(name)
-	d.append(name)
-
-	#doctor id
-	href = a.get("href")
-	doc_id = re.search(r"\d+",href)
-	doc_id = doc_id.group()
-	doc_id = to_number(doc_id)
-	d.append(doc_id)
-
-	#doctor speciality
-	span = inner_divs[0].find("span")
-	specialist = span.string
-	specialist = to_string(specialist)
-	d.append(specialist)
-
-	#doctor practicing since
-	practicing = inner_divs[1].text
-	practicing = re.search(r"\d+",practicing)
-	practicing = practicing.group()
-	practicing = to_number(practicing)
-	d.append(practicing)
-
-	#number of questions answered
-	answered = inner_divs[2].text
-	answered = re.search(r"\d+",answered)
-	answered = answered.group()
-	answered = to_number(answered)
-	d.append(answered)
-
-	#user rating
-	rating = doc_div.find("spna")
-	rating = rating.string
-	rating = to_string(rating)
-	d.append(rating)
-
-	#star rating
-	rating = doc_div.find("div",class_="innerDiv")
-	style = rating.get("style")
-	stars = re.search(r"\d+",style)
-	stars = stars.group()
-	stars = int(stars)/20
-	d.append(stars)
-
-	#user acceptance
-	p = main_div.find("p")
-	p = p.string
-	p = to_string(p)
-	yes = re.search(r"accepted",p)
-	yes = yes.group()
-	if yes == "accepted":
-		d.append("Yes")
-	else:
-		d.append("No")
-
-	j = 0
-	for i in range(len(questions)):
-		#question description
-		question = questions[i].find("div",class_="paragraph")
-		question= question.text
-		question = to_string(question)
-		d.append(question)
-
-		if i>0:
-			#question time
-			time = times[j].string
-			time = to_string(time)
-			d.append(time)
-			j += 1
-		else:
-			#posted time
-			span = main_div.find("span",class_="premiumTime")
-			posted_on = span.find("span")
-			posted_on = posted_on.string
-			posted_on = to_string(posted_on)
-			d.append(posted_on)
-			
-		#answer
-		answer = answers[i].find("div",class_="paragraph")
-		answer = answer.text
-		answer = to_string(answer)
-		d.append(answer)
-		
-		#peer review
-		peer = peers[i].string
-		peer = to_string(peer)
-		d.append(peer)
-
-		#answer time
-		time = times[j].string
-		time = to_string(time)
-		d.append(time)
-		j += 1
+	for question, answer in zip(questions, answers):
+		# question description
+		question_text = question.find("div", class_="card").text.strip()
+		# question time
+		question_date = question.find("div", class_="userrow").find("span").string.strip()
+		if "ago" in question_date: question_date = get_date()
+		# answer
+		answer_text = answer.find("div",class_="card").text.strip()
+		# peer review
+		peer = answer.find_all("div", class_="userrow right")[1].find("a").string.strip()
+		# answer time
+		answer_time = answer.find_all("div", class_="userrow right")[0].find("span").string.strip()
+		d += [question_text, question_date, answer_text, peer, answer_time]
 
 	write.writerow(d)
-	del d
 
-#opens the premiumQuestions.csv file and retrives information about the premium questions
-file1 = open('premiumQuestions.csv','rb')
-read = csv.reader(file1)
-
-#creates a file premiumAuestions.csv and stores all the answers retrived
-file2 = open('premiumAnswers.csv','wb')
-write = csv.writer(file2,delimiter=",")
-
+# creates a file premiumAuestions.csv and stores all the answers retrived
+write = csv.writer(open('premiumAnswers.csv','w'), delimiter=",")
+# opens the premiumQuestions.csv file and retrives information about the premium questions
+read = csv.reader(open('premiumQuestions.csv','r'))
 for row in read:
-	page_url = row[1]
 	try:
-		get_values(page_url)
+		get_values(row)
 	except:
-		logger.error('Error on page %s',page_url)
-		logger.error('Failed to get_values',exc_info=True)
-
-file1.close()
-file2.close()
+		logger.error('Error on page %s', row[1])
+		logger.error('Failed to get_values', exc_info=True)
+quit()

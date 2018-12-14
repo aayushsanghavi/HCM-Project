@@ -16,15 +16,15 @@ def get_next_page(page_link):
 		if match: return "http://www.healthcaremagic.com" + page_li_url
 	return None
 
-#this function retrives the title, url and number of each category for the specific url
+# retrives the title, url and id of each category for the specific url
 def get_values(soup):
 	ul = soup.find("ul",class_="itemListUL anchorListing")
 	all_li = ul.find_all("li")
 	for li in all_li:
 		title = li.a.string.strip()
 		url = "http://www.healthcaremagic.com" + li.a.get('href').strip()
-		number = re.search(r'\d+',url).group().strip()
-		outfile.writerow([title, url, number])
+		cat_id = re.search(r'\d+',url).group()
+		outfile.writerow([cat_id, title, url])
 
 outfile = csv.writer(open('topics.csv', 'w'), delimiter=",")
 webpages = ["disease-and-conditions", "drugs", "treatments","procedures", "lab-tests"]

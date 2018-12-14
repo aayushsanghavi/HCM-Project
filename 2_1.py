@@ -20,7 +20,10 @@ def get_values(page_url):
 		a = div.find("a")
 		title = a.string.strip()
 		url = "http://www.healthcaremagic.com" + a.get('href').strip()
-		write.writerow([title, url])
+		ques_id = re.search(r'/([\d]+)',url).group(1)
+		ques_info_td = div.find("tr").find_all("td")[1:]
+		ques_info = [content.string.strip() for content in ques_info_td]
+		write.writerow([ques_id, title, url] + ques_info)
 
 # opens the categories.csv file and retrives previously stored information
 read = csv.reader(open('categories.csv','r'))
