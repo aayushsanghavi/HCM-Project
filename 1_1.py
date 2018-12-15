@@ -13,8 +13,8 @@ categories_a = div.find_all("a", class_="questionTitle")
 for category_a in categories_a:
     title = category_a.string.strip()
     url = "http://www.healthcaremagic.com" + category_a.get('href').strip()
-    number = re.search(r'\d+', url).group()
-    categories.append([title, url, number])
+	cat_id = url.split("/")[-1]
+    categories.append([title, url, cat_id])
 
 #this segment of code retrives the number of questions asked in the category
 categories_span = div.find_all("span", style="display: block;font-size:10px; color:#999;")

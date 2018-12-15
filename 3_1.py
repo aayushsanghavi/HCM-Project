@@ -28,8 +28,7 @@ def get_values(content):
 		inner_div = div.find("div",class_="smallPQIcon")
 		title = inner_div.a.string.strip()
 		url = "http://www.healthcaremagic.com" + inner_div.a.get('href').strip()
-		match = re.search(r'/([\d]+)',url)
-		number = match.group(1)
+		number = re.search(r'/([\d]+)',url).group(1)
 		write.writerow([title, url, number])
 
 page_url = "http://www.healthcaremagic.com/premiumquestions"

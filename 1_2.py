@@ -12,7 +12,7 @@ def get_next_page(page_link):
 	for li in page_li:
 		page_li_url = li.get('href')
 		page_li_value = li.string.strip()
-		match = re.search(r'\D+', page_li_value)
+		match = re.search(r'Next', page_li_value)
 		if match: return "http://www.healthcaremagic.com" + page_li_url
 	return None
 
@@ -23,7 +23,7 @@ def get_values(soup):
 	for li in all_li:
 		title = li.a.string.strip()
 		url = "http://www.healthcaremagic.com" + li.a.get('href').strip()
-		cat_id = re.search(r'\d+',url).group()
+		cat_id = url.split("/")[-1]
 		outfile.writerow([cat_id, title, url])
 
 outfile = csv.writer(open('topics.csv', 'w'), delimiter=",")
