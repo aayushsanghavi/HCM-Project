@@ -19,7 +19,7 @@ def get_values(page_url):
 	for div in all_div:
 		a = div.find("a")
 		title = a.string.strip()
-		url = "http://www.healthcaremagic.com" + a.get('href').strip()
+		url = "http://www.healthcaremagic.com" + a.get('href')
 		ques_id = re.search(r'/([\d]+)',url).group(1)
 		ques_info_td = div.find("tr").find_all("td")[1:]
 		ques_info = [content.string.strip() for content in ques_info_td]

@@ -17,7 +17,7 @@ def get_date():
 	return day + ", " + today.strftime("%d") + " " + month + " " + today.strftime("%Y")
 
 def get_values(row):
-	title, page_url, question_id = row
+	question_id, title, page_url = row
 	page = request.urlopen(page_url).read().decode("utf-8", "ignore")
 	soup = BeautifulSoup(page, "html.parser")
 

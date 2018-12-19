@@ -12,7 +12,7 @@ div = soup.find("div", class_="linePadding7")
 categories_a = div.find_all("a", class_="questionTitle")
 for category_a in categories_a:
     title = category_a.string.strip()
-    url = "http://www.healthcaremagic.com" + category_a.get('href').strip()
+    url = "http://www.healthcaremagic.com" + category_a.get('href')
 	cat_id = url.split("/")[-1]
     categories.append([title, url, cat_id])
 

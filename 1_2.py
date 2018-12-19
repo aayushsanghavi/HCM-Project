@@ -22,7 +22,7 @@ def get_values(soup):
 	all_li = ul.find_all("li")
 	for li in all_li:
 		title = li.a.string.strip()
-		url = "http://www.healthcaremagic.com" + li.a.get('href').strip()
+		url = "http://www.healthcaremagic.com" + li.a.get('href')
 		cat_id = url.split("/")[-1]
 		outfile.writerow([cat_id, title, url])
 

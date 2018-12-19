@@ -16,7 +16,7 @@ def get_next_page(page_link):
 	page_li = div.find("div", id="paginationDiv").find_all("a", class_="box")
 	for li in page_li:
 		page_li_value = li.string.strip()
-		page_li_url = li.get('href').strip()
+		page_li_url = li.get('href')
 		match = re.search(r'Next', page_li_value)
 		if match: return "http://www.healthcaremagic.com" + page_li_url
 	return None
@@ -27,9 +27,9 @@ def get_values(content):
 	for div in all_div:
 		inner_div = div.find("div",class_="smallPQIcon")
 		title = inner_div.a.string.strip()
-		url = "http://www.healthcaremagic.com" + inner_div.a.get('href').strip()
+		url = "http://www.healthcaremagic.com" + inner_div.a.get('href')
 		number = re.search(r'/([\d]+)',url).group(1)
-		write.writerow([title, url, number])
+		write.writerow([number, title, url])
 
 page_url = "http://www.healthcaremagic.com/premiumquestions"
 write = csv.writer(open('premiumQuestions.csv','w'), delimiter=",")
