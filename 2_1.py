@@ -1,5 +1,4 @@
 import re
-import sys
 import csv
 import logging
 from urllib import request
