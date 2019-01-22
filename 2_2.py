@@ -90,9 +90,9 @@ for row in read:
 	file = row[0] + " questions.csv"
 	questions = csv.reader(open(file, 'r'))
 	file = row[0] + " answers.csv"
-	write = csv.writer(open(file, 'w'), delimiter=",")
+	write = csv.writer(open(file, 'w', encoding='utf-8'), delimiter=",")
 	# creates a temporary file that stores entries which had problems being retrived in the first try
-	temp = csv.writer(open('temp.csv','w'), delimiter=",")
+	temp = csv.writer(open('temp.csv','w', encoding='utf-8'), delimiter=",")
 
 	for question in questions:
 		try:
@@ -103,13 +103,13 @@ for row in read:
 			temp.writerow([question[2]])
 
 	# open temp and run the get_values function again to retrive the lost entries
-	questions = csv.reader(open('temp.csv','r'))
+	questions = csv.reader(open('temp.csv', 'r'))
 	for question in questions:
 		try:
 			get_values(question[0])
 		except:
-			logger.error('Error on page %s',question[0])
-			logger.error('Failed to get_values',exc_info=True)
+			logger.error('Error on page %s', question[0])
+			logger.error('Failed to get_values', exc_info=True)
 
 quit()
 ## To note that in very few cases the url causes infinite redirection loops

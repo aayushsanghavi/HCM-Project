@@ -24,7 +24,7 @@ for i, category_span in enumerate(categories_span):
     categories[i].append(number)
 
 #this code creates a file categories.csv and stores all the information retrived
-write = csv.writer(open('categories.csv','w'), delimiter=",")
+write = csv.writer(open('categories.csv', 'w', encoding='utf-8'), delimiter=",")
 for category in categories:
 	write.writerow(category)
 quit()

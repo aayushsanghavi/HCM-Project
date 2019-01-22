@@ -46,7 +46,7 @@ def get_doctor_info(soup, d):
 # url of the desired webpage
 page_url = "http://www.healthcaremagic.com/doctors"
 # creates a file doctors.csv and stores all the information retrived
-write = csv.writer(open('doctors.csv', 'w'), delimiter=",")
+write = csv.writer(open('doctors.csv', 'w', encoding='utf-8'), delimiter=",")
 # extracts all the required information from all the pages
 while page_url:
 	try:

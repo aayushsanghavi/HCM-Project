@@ -26,7 +26,7 @@ def get_values(soup):
 		cat_id = url.split("/")[-1]
 		outfile.writerow([cat_id, title, url])
 
-outfile = csv.writer(open('topics.csv', 'w'), delimiter=",")
+outfile = csv.writer(open('topics.csv', 'w', encoding='utf-8'), delimiter=",")
 webpages = ["disease-and-conditions", "drugs", "treatments","procedures", "lab-tests"]
 #this loop extracts all the required information from all the pages of each category
 for webpage in webpages:

@@ -28,7 +28,7 @@ def get_values(page_url):
 read = csv.reader(open('categories.csv','r'))
 for row in read:
 	# creates a file for each category and stores all the questions retrived
-	write = csv.writer(open(row[0] + " questions.csv", "w"), delimiter=",")
+	write = csv.writer(open(row[0] + " questions.csv", "w", encoding='utf-8'), delimiter=",")
 	pages = int(int(row[3]) / questions_per_page) + 1
 
 	page_num = 0

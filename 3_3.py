@@ -65,7 +65,7 @@ def get_values(row):
 	write.writerow(d)
 
 # creates a file premiumAuestions.csv and stores all the answers retrived
-write = csv.writer(open('premiumAnswers.csv','w'), delimiter=",")
+write = csv.writer(open('premiumAnswers.csv','w', encoding='utf-8'), delimiter=",")
 # opens the premiumQuestions.csv file and retrives information about the premium questions
 read = csv.reader(open('premiumQuestions.csv','r'))
 for row in read:

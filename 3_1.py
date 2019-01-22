@@ -31,7 +31,7 @@ def get_values(content):
 		write.writerow([number, title, url])
 
 page_url = "http://www.healthcaremagic.com/premiumquestions"
-write = csv.writer(open('premiumQuestions.csv','w'), delimiter=",")
+write = csv.writer(open('premiumQuestions.csv', 'w', encoding='utf-8'), delimiter=",")
 # extracts all the required information from all the pages
 while page_url:
 	page_url = get_next_page(page_url)
